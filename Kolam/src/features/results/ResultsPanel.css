@@ -1,0 +1,103 @@
+.results-panel {
+  max-width: var(--max-content-width);
+}
+
+.results-header {
+  margin-bottom: var(--space-6);
+}
+
+.results-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.results-summary {
+  display: flex;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+.summary-item strong {
+  color: var(--color-gray-900);
+}
+
+.summary-separator {
+  color: var(--color-gray-400);
+}
+
+.charts-section,
+.tables-section {
+  background-color: var(--color-white);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.charts-section h3,
+.tables-section h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-5);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: var(--space-6);
+}
+
+.result-table-container {
+  margin-bottom: var(--space-6);
+}
+
+.result-table-container:last-child {
+  margin-bottom: 0;
+}
+
+.result-table-container h4 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-3);
+  text-transform: capitalize;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.result-table thead {
+  background-color: var(--color-gray-50);
+}
+
+.result-table th {
+  padding: var(--space-3);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-700);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+.result-table td {
+  padding: var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-gray-100);
+  color: var(--color-gray-800);
+}
+
+.result-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.result-table tbody tr:hover {
+  background-color: var(--color-gray-50);
+}

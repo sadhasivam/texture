@@ -1,0 +1,41 @@
+.explanation-panel {
+  background-color: var(--color-primary-50);
+  border: var(--border-width) solid var(--color-primary-200);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.explanation-panel h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-900);
+  margin-bottom: var(--space-4);
+}
+
+.explanation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.explanation-item {
+  position: relative;
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-primary-900);
+}
+
+.explanation-item:before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary-600);
+  font-weight: var(--font-weight-bold);
+}
+
+.explanation-item:last-child {
+  margin-bottom: 0;
+}

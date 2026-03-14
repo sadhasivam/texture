@@ -1,0 +1,41 @@
+.algorithm-sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  background-color: var(--color-white);
+  border-right: var(--border-width) solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: var(--space-8) var(--space-6);
+  border-bottom: none;
+}
+
+.sidebar-header h2 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-black);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.sidebar-loading,
+.sidebar-error,
+.sidebar-empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+}
+
+.sidebar-error {
+  color: var(--color-error);
+}

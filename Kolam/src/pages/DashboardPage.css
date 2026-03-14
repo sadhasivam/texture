@@ -1,0 +1,163 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-header {
+  height: var(--header-height);
+  background-color: var(--color-black);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-8);
+  border-bottom: 1px solid var(--color-gray-800);
+}
+
+.app-branding {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-gray-800);
+  color: var(--color-white);
+  cursor: pointer;
+  transition: background-color var(--transition-base);
+}
+
+.user-icon:hover {
+  background-color: var(--color-gray-700);
+}
+
+.dashboard-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.workspace {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-8);
+}
+
+.action-button {
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-black);
+  color: var(--color-white);
+  border: none;
+  border-radius: 0px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-base);
+}
+
+.action-button:hover {
+  background-color: var(--color-gray-800);
+}
+
+.action-button.secondary {
+  background-color: var(--color-gray-700);
+}
+
+.action-button.secondary:hover {
+  background-color: var(--color-gray-600);
+}
+
+.results-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  max-width: var(--max-content-width);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-md);
+}
+
+.section {
+  max-width: var(--max-content-width);
+}
+
+.section h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-3);
+}
+
+.section p {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-600);
+  margin-bottom: var(--space-6);
+}
+
+/* Two-column layout */
+.work-area {
+  display: flex;
+  gap: var(--space-8);
+  height: calc(100vh - var(--header-height) - 64px);
+  overflow: hidden;
+}
+
+.input-section {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--space-4);
+}
+
+.output-section {
+  flex: 1;
+  overflow-y: auto;
+  padding-left: var(--space-4);
+  border-left: var(--border-width) solid var(--border-color);
+}
+
+.section-header {
+  margin-bottom: var(--space-6);
+}
+
+.section-header h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.section-header p {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-600);
+}
+
+.output-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-md);
+  text-align: center;
+  padding: var(--space-8);
+}
