@@ -20,6 +20,12 @@ export default function FeatureSelector({
     (col) => allowedTypes.includes(col.inferred_type) && col.name !== targetColumn
   );
 
+  // Debug logging
+  console.log('FeatureSelector - Allowed types:', allowedTypes);
+  console.log('FeatureSelector - Target column:', targetColumn);
+  console.log('FeatureSelector - All columns:', columns.map(c => `${c.name}(${c.inferred_type})`));
+  console.log('FeatureSelector - Valid columns:', validColumns.map(c => `${c.name}(${c.inferred_type})`));
+
   const handleToggle = (columnName: string) => {
     if (selectedColumns.includes(columnName)) {
       onSelect(selectedColumns.filter((c) => c !== columnName));
@@ -36,7 +42,14 @@ export default function FeatureSelector({
       </label>
       <div className="feature-list">
         {validColumns.length === 0 && (
-          <p className="no-features">No valid feature columns available</p>
+          <p className="no-features">
+            No valid feature columns available
+            <br />
+            <small style={{ color: '#666' }}>
+              Looking for: {allowedTypes.join(', ')}
+              {targetColumn && ` (excluding target: ${targetColumn})`}
+            </small>
+          </p>
         )}
         {validColumns.map((col) => (
           <label key={col.name} className="feature-checkbox-label">

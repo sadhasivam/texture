@@ -18,6 +18,11 @@ export default function TargetSelector({
     allowedTypes.includes(col.inferred_type)
   );
 
+  // Debug logging
+  console.log('TargetSelector - Allowed types:', allowedTypes);
+  console.log('TargetSelector - All columns:', columns.map(c => `${c.name}(${c.inferred_type})`));
+  console.log('TargetSelector - Valid columns:', validColumns.map(c => `${c.name}(${c.inferred_type})`));
+
   return (
     <div className="selector-group">
       <label className="selector-label">
@@ -38,6 +43,11 @@ export default function TargetSelector({
       </select>
       <p className="selector-hint">
         Allowed types: {allowedTypes.join(', ')}
+        {validColumns.length === 0 && (
+          <span style={{ color: 'red', display: 'block', marginTop: '4px' }}>
+            ⚠ No columns match the allowed types
+          </span>
+        )}
       </p>
     </div>
   );

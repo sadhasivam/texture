@@ -138,11 +138,27 @@ class LinearRegressionAdapter(AlgorithmAdapter):
         mse = mean_squared_error(y_test, y_pred)
         rmse = np.sqrt(mse)
 
-        # Prepare predicted vs actual chart data
-        predicted_vs_actual_data = [
-            {"actual": float(actual), "predicted": float(pred)}
-            for actual, pred in zip(y_test, y_pred)
-        ]
+        # Prepare predicted vs actual chart data with best fit line
+        # Create a combined dataset to sort together
+        combined = list(zip(y_test.values, y_pred))
+        # Sort by actual values to create smooth visualization
+        combined.sort(key=lambda x: x[0])
+
+        y_test_sorted = np.array([x[0] for x in combined])
+        y_pred_sorted = np.array([x[1] for x in combined])
+
+        # Calculate best fit trend line through the data
+        indices = np.arange(len(y_test_sorted))
+        trend_coef = np.polyfit(indices, y_test_sorted, 1)  # Linear trend through actual values
+        best_fit_values = np.polyval(trend_coef, indices)
+
+        predicted_vs_actual_data = []
+        for idx, (actual, pred, fit) in enumerate(zip(y_test_sorted, y_pred_sorted, best_fit_values)):
+            predicted_vs_actual_data.append({
+                "actual": float(actual),
+                "predicted": float(pred),
+                "best_fit": float(fit)
+            })
 
         # Prepare residual plot data
         residuals = y_test - y_pred

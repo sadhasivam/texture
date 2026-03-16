@@ -125,7 +125,13 @@ Weaver/app/storage/uploads/*.csv
 Weaver/test_api.py
 Weaver/test_housing.csv
 
+# Downloaded datasets from scripts
+Weaver/data-set/
+
 # Logs
 *.log
 logs/
 pnpm-debug.log*
+
+# Process IDs
+*.pid

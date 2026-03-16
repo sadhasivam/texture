@@ -6,6 +6,7 @@ class AlgorithmParameter(BaseModel):
     type: str
     default: float | int | str | bool
     label: str
+    options: list[str] | None = None
 
 
 class AlgorithmTarget(BaseModel):

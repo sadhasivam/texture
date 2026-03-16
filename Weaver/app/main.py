@@ -4,9 +4,12 @@ from app.api.v1 import algorithms, datasets, health, runs
 from app.core.config import settings
 from app.core.cors import setup_cors
 from app.ml.decision_tree import DecisionTreeAdapter
+from app.ml.knn import KNNAdapter
 from app.ml.linear_regression import LinearRegressionAdapter
 from app.ml.logistic_regression import LogisticRegressionAdapter
+from app.ml.naive_bayes import NaiveBayesAdapter
 from app.ml.random_forest import RandomForestAdapter
+from app.ml.svm import SVMAdapter
 from app.services.algorithm_registry import registry
 
 # Create FastAPI app
@@ -27,6 +30,9 @@ def register_algorithms():
     registry.register(LogisticRegressionAdapter())
     registry.register(DecisionTreeAdapter())
     registry.register(RandomForestAdapter())
+    registry.register(SVMAdapter())
+    registry.register(KNNAdapter())
+    registry.register(NaiveBayesAdapter())
 
 
 # Startup event

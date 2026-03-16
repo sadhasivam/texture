@@ -9,6 +9,9 @@ import {
   BarChart,
   Bar,
   Cell,
+  Line,
+  LineChart,
+  Legend,
 } from 'recharts';
 import type { ChartData } from '../../types/run';
 import './ChartRenderer.css';
@@ -21,25 +24,53 @@ export default function ChartRenderer({ chart }: ChartRendererProps) {
   const renderChart = () => {
     switch (chart.type) {
       case 'predicted_vs_actual':
+        // Add index to each data point for x-axis
+        const indexedData = chart.data.map((d: any, idx: number) => ({
+          index: idx,
+          actual: d.actual,
+          predicted: d.predicted,
+          best_fit: d.best_fit,
+        }));
+
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <LineChart data={indexedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                type="number"
-                dataKey="actual"
-                name="Actual"
-                label={{ value: 'Actual', position: 'insideBottom', offset: -10 }}
+                dataKey="index"
+                label={{ value: 'Sample', position: 'insideBottom', offset: -10 }}
               />
               <YAxis
-                type="number"
-                dataKey="predicted"
-                name="Predicted"
-                label={{ value: 'Predicted', angle: -90, position: 'insideLeft' }}
+                label={{ value: 'Value', angle: -90, position: 'insideLeft' }}
               />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-              <Scatter data={chart.data} fill="#3b82f6" />
-            </ScatterChart>
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="actual"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={false}
+                name="Actual"
+              />
+              <Line
+                type="monotone"
+                dataKey="predicted"
+                stroke="#f97316"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+                name="Predicted"
+              />
+              <Line
+                type="monotone"
+                dataKey="best_fit"
+                stroke="#10b981"
+                strokeWidth={2}
+                dot={false}
+                name="Best Fit Line"
+              />
+            </LineChart>
           </ResponsiveContainer>
         );
 

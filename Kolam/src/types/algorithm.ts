@@ -3,6 +3,7 @@ export interface AlgorithmParameter {
   type: string;
   default: number | string | boolean;
   label: string;
+  options?: string[];
 }
 
 export interface AlgorithmTarget {
