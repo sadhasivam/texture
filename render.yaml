@@ -6,8 +6,8 @@ services:
     plan: free
     branch: main
     rootDir: Weaver
-    buildCommand: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
-    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: export PATH="$HOME/.cargo/bin:$PATH" && uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.3
