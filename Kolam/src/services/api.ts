@@ -2,7 +2,8 @@ import type { AlgorithmMetadata, AlgorithmSummary } from '../types/algorithm';
 import type { DatasetDetails, DatasetUploadResponse } from '../types/dataset';
 import type { RunRequest, RunResponse } from '../types/run';
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+// Use environment variable for API URL, fallback to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export const api = {
   // Health check

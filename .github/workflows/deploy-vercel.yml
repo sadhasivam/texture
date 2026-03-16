@@ -1,0 +1,49 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Kolam/**'
+      - '.github/workflows/deploy-vercel.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: ./Kolam
+        run: pnpm install
+
+      - name: Build project
+        working-directory: ./Kolam
+        run: pnpm build
+        env:
+          # Set production API URL (update this to your backend URL)
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./Kolam
+          vercel-args: '--prod'

@@ -137,3 +137,7 @@ pnpm-debug.log*
 *.pid
 data-set/**.*
 snapshopts/*.*
+
+# Vercel
+.vercel
+*.vercel.json.bak
