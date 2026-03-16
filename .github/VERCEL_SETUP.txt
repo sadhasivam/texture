@@ -1,0 +1,80 @@
+VERCEL DEPLOYMENT SETUP
+=======================
+
+Follow these steps to enable automatic deployment to Vercel via GitHub Actions:
+
+STEP 1: Install Vercel CLI locally
+-----------------------------------
+npm install -g vercel
+
+STEP 2: Login to Vercel
+------------------------
+vercel login
+
+STEP 3: Link your project to Vercel
+------------------------------------
+cd Kolam
+vercel link
+
+This will create a .vercel directory with project.json containing:
+- orgId (VERCEL_ORG_ID)
+- projectId (VERCEL_PROJECT_ID)
+
+STEP 4: Get your Vercel Token
+------------------------------
+1. Go to https://vercel.com/account/tokens
+2. Click "Create Token"
+3. Name it: "GitHub Actions Texture"
+4. Copy the token (VERCEL_TOKEN)
+
+STEP 5: Add GitHub Secrets
+---------------------------
+Go to your GitHub repo → Settings → Secrets and variables → Actions
+
+Add these secrets:
+
+1. VERCEL_TOKEN
+   Value: [token from step 4]
+
+2. VERCEL_ORG_ID
+   Value: [orgId from .vercel/project.json]
+
+3. VERCEL_PROJECT_ID
+   Value: [projectId from .vercel/project.json]
+
+4. VITE_API_URL (optional)
+   Value: https://your-backend-url.com/api/v1
+   (or leave empty to use default localhost for dev)
+
+STEP 6: Push to GitHub
+-----------------------
+git add .
+git commit -m "Add Vercel deployment workflow"
+git push origin main
+
+The GitHub Action will automatically deploy to Vercel!
+
+STEP 7: Verify Deployment
+--------------------------
+1. Go to your GitHub repo → Actions tab
+2. Watch the "Deploy to Vercel" workflow run
+3. Once complete, visit your Vercel dashboard to see the deployment
+
+MANUAL DEPLOYMENT (optional)
+-----------------------------
+To deploy manually from your local machine:
+
+cd Kolam
+vercel --prod
+
+TROUBLESHOOTING
+---------------
+- If build fails, check the GitHub Actions logs
+- Ensure all secrets are correctly set in GitHub
+- Verify that pnpm build works locally first
+- Check that VITE_API_URL points to your backend
+
+UPDATING BACKEND URL
+--------------------
+If your backend URL changes, update the VITE_API_URL secret in GitHub:
+Repo → Settings → Secrets → Actions → Edit VITE_API_URL

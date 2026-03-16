@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uvicorn app.main:app --reload --port 8000)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(pkill -f \"uvicorn app.main:app\")",
+      "Bash(pnpm create:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(lsof -ti:3000)",
+      "Bash(lsof -ti:8000,3000)"
+    ]
+  }
+}
