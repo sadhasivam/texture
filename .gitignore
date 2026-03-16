@@ -135,3 +135,5 @@ pnpm-debug.log*
 
 # Process IDs
 *.pid
+data-set/**.*
+snapshopts/*.*
