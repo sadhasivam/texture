@@ -119,7 +119,7 @@ dist/
 dist-ssr/
 
 # Uploaded datasets
-Weaver/app/storage/uploads/*.csv
+Weaver/app/storage/uploads/
 
 # Test files
 Weaver/test_api.py
