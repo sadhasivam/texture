@@ -11,8 +11,6 @@
 }
 
 http://0.0.0.0:8080 {
-	# Absolute path to built frontend files
-	root * /root/texture/Kolam/dist
 	encode gzip
 
 	# Proxy API requests to backend
@@ -22,6 +20,7 @@ http://0.0.0.0:8080 {
 
 	# Serve static files with SPA fallback
 	handle {
+		root * /root/texture/Kolam/dist
 		try_files {path} /index.html
 		file_server
 	}
