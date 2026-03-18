@@ -11,7 +11,7 @@
 }
 
 http://0.0.0.0:8080 {
-	# Use absolute path - CHANGE THIS to your actual path
+	# Absolute path to built frontend files
 	root * /root/texture/Kolam/dist
 	encode gzip
 
