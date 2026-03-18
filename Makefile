@@ -47,9 +47,16 @@ build:
 
 prod: build
 	@echo "Starting Weaver backend..."
-	@cd Weaver && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 > ../weaver.log 2>&1 & echo $$! > ../weaver.pid
-	@sleep 1
+	@cd Weaver && nohup .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 > ../weaver.log 2>&1 & echo $$! > ../weaver.pid
+	@sleep 2
 	@echo "Weaver backend started (PID: $$(cat weaver.pid))"
+	@echo "Verifying backend is running..."
+	@if pgrep -f "uvicorn app.main:app" > /dev/null; then \
+		echo "  ✓ Backend is running"; \
+	else \
+		echo "  ✗ Backend failed to start - check weaver.log"; \
+		tail -20 weaver.log; \
+	fi
 	@echo "Starting Caddy server..."
 	@caddy start --config $(PWD)/Caddyfile --adapter caddyfile 2>&1 | tee caddy.log
 	@sleep 1
