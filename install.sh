@@ -85,8 +85,17 @@ else
     echo "Installing uv..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
     # Add uv to PATH for current session
-    export PATH="$HOME/.cargo/bin:$PATH"
-    echo -e "${GREEN}✓ uv installed: $(uv --version)${NC}"
+    export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+    # Also try common installation locations
+    if [ -f "$HOME/.cargo/bin/uv" ]; then
+        UV_BIN="$HOME/.cargo/bin/uv"
+    elif [ -f "$HOME/.local/bin/uv" ]; then
+        UV_BIN="$HOME/.local/bin/uv"
+    else
+        # Source the environment to get uv
+        [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+    fi
+    echo -e "${GREEN}✓ uv installed: $(uv --version 2>/dev/null || echo 'installed')${NC}"
 fi
 
 # Install Caddy
@@ -113,6 +122,11 @@ echo -e "${YELLOW}[7/7] Setting up project dependencies...${NC}"
 echo ""
 echo "Setting up Weaver backend..."
 cd Weaver
+
+# Ensure uv is in PATH
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 if [ ! -d ".venv" ]; then
     echo "Creating Python virtual environment..."
     uv venv
@@ -130,10 +144,14 @@ cd ..
 echo ""
 echo "Setting up Kolam frontend..."
 cd Kolam
-echo "Installing Node.js dependencies..."
-# Add pnpm to PATH if not already there
+
+# Ensure pnpm is in PATH
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
+# Source pnpm environment if it exists
+[ -s "$PNPM_HOME/pnpm.sh" ] && . "$PNPM_HOME/pnpm.sh"
+
+echo "Installing Node.js dependencies..."
 pnpm install
 echo -e "${GREEN}✓ Node.js dependencies installed${NC}"
 cd ..
@@ -164,6 +182,9 @@ echo "  3. Stop servers:      make stop (dev) or make prod-stop (prod)"
 echo ""
 echo "Production URL: http://localhost:8080"
 echo ""
-echo -e "${YELLOW}Note: You may need to reload your shell or run:${NC}"
-echo "  source ~/.bashrc    # or ~/.zshrc"
+echo -e "${YELLOW}IMPORTANT: Reload your shell to use the newly installed tools:${NC}"
+echo "  source ~/.bashrc    # for bash"
+echo "  source ~/.zshrc     # for zsh"
+echo ""
+echo "Or close and reopen your terminal."
 echo ""
