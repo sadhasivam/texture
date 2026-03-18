@@ -1,14 +1,23 @@
 # Texture Production Server Configuration
 #
 # This Caddyfile serves the Texture application through a single URL:
-# - Frontend: Serves Kolam/dist (built React app) on http://localhost:8080
+# - Frontend: Serves Kolam/dist (built React app)
 # - Backend: Proxies /api/* requests to Weaver backend at localhost:8000
 #
 # Usage:
 #   make prod       # Build frontend and start with Caddy
 #   make prod-stop  # Stop production servers
+#
+# Production deployment:
+#   - For local: :8080 (localhost only)
+#   - For server: 0.0.0.0:8080 (accessible from internet)
+#   - For domain: yourdomain.com (Caddy auto-handles HTTPS)
 
-:8080 {
+# Local development/testing
+# :8080 {
+
+# Production server (accessible from internet)
+0.0.0.0:8080 {
 	# Root directory for static files
 	root * Kolam/dist
 
