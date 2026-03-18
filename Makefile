@@ -41,9 +41,9 @@ stop:
 
 # Production mode (Caddy serves built frontend + proxies to backend)
 build:
-	@echo "Building Kolam frontend..."
-	@cd Kolam && pnpm build
-	@echo "✓ Frontend built to Kolam/dist"
+	@echo "Building Kolam frontend for production..."
+	@cd Kolam && VITE_API_URL=/api/v1 pnpm build
+	@echo "✓ Frontend built to Kolam/dist (API URL: /api/v1)"
 
 prod: build
 	@echo "Starting Weaver backend..."
