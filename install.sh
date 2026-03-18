@@ -32,12 +32,24 @@ command_exists() {
 
 # Update system packages
 echo ""
-echo -e "${YELLOW}[1/7] Updating system packages...${NC}"
+echo -e "${YELLOW}[1/8] Updating system packages...${NC}"
 sudo apt-get update
+
+# Install build essentials (includes make)
+echo ""
+echo -e "${YELLOW}[2/8] Installing build essentials...${NC}"
+if command_exists make; then
+    MAKE_VERSION=$(make --version | head -n1)
+    echo -e "${GREEN}✓ make already installed: $MAKE_VERSION${NC}"
+else
+    echo "Installing make and build tools..."
+    sudo apt-get install -y build-essential
+    echo -e "${GREEN}✓ make installed: $(make --version | head -n1)${NC}"
+fi
 
 # Install Node.js (required for pnpm)
 echo ""
-echo -e "${YELLOW}[2/7] Installing Node.js...${NC}"
+echo -e "${YELLOW}[3/8] Installing Node.js...${NC}"
 if command_exists node; then
     NODE_VERSION=$(node --version)
     echo -e "${GREEN}✓ Node.js already installed: $NODE_VERSION${NC}"
@@ -50,7 +62,7 @@ fi
 
 # Install pnpm
 echo ""
-echo -e "${YELLOW}[3/7] Installing pnpm...${NC}"
+echo -e "${YELLOW}[4/8] Installing pnpm...${NC}"
 if command_exists pnpm; then
     PNPM_VERSION=$(pnpm --version)
     echo -e "${GREEN}✓ pnpm already installed: $PNPM_VERSION${NC}"
@@ -65,7 +77,7 @@ fi
 
 # Install Python 3 (required for uv)
 echo ""
-echo -e "${YELLOW}[4/7] Checking Python installation...${NC}"
+echo -e "${YELLOW}[5/8] Checking Python installation...${NC}"
 if command_exists python3; then
     PYTHON_VERSION=$(python3 --version)
     echo -e "${GREEN}✓ Python already installed: $PYTHON_VERSION${NC}"
@@ -77,7 +89,7 @@ fi
 
 # Install uv (Python package manager)
 echo ""
-echo -e "${YELLOW}[5/7] Installing uv...${NC}"
+echo -e "${YELLOW}[6/8] Installing uv...${NC}"
 if command_exists uv; then
     UV_VERSION=$(uv --version)
     echo -e "${GREEN}✓ uv already installed: $UV_VERSION${NC}"
@@ -100,7 +112,7 @@ fi
 
 # Install Caddy
 echo ""
-echo -e "${YELLOW}[6/7] Installing Caddy...${NC}"
+echo -e "${YELLOW}[7/8] Installing Caddy...${NC}"
 if command_exists caddy; then
     CADDY_VERSION=$(caddy version)
     echo -e "${GREEN}✓ Caddy already installed: $CADDY_VERSION${NC}"
@@ -116,7 +128,7 @@ fi
 
 # Setup project dependencies
 echo ""
-echo -e "${YELLOW}[7/7] Setting up project dependencies...${NC}"
+echo -e "${YELLOW}[8/8] Setting up project dependencies...${NC}"
 
 # Setup Python backend (Weaver)
 echo ""
@@ -169,6 +181,7 @@ echo -e "${GREEN}Installation Complete!${NC}"
 echo "======================================"
 echo ""
 echo "Installed versions:"
+echo "  - make: $(make --version | head -n1)"
 echo "  - Node.js: $(node --version)"
 echo "  - pnpm: $(pnpm --version)"
 echo "  - Python: $(python3 --version)"
@@ -176,11 +189,13 @@ echo "  - uv: $(uv --version)"
 echo "  - Caddy: $(caddy version | head -n1)"
 echo ""
 echo "Next steps:"
-echo "  1. Development mode:  make start"
-echo "  2. Production mode:   make prod"
-echo "  3. Stop servers:      make stop (dev) or make prod-stop (prod)"
+echo "  1. Production mode:   make prod       (runs in background)"
+echo "  2. Stop servers:      make prod-stop"
+echo "  3. Check logs:        tail -f weaver.log caddy.log"
 echo ""
-echo "Production URL: http://localhost:8080"
+echo "Access at: http://YOUR_SERVER_IP:8080"
+echo ""
+echo "Note: 'make prod' runs all servers in background as daemons."
 echo ""
 echo -e "${YELLOW}IMPORTANT: Reload your shell to use the newly installed tools:${NC}"
 echo "  source ~/.bashrc    # for bash"
