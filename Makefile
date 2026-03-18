@@ -37,11 +37,13 @@ build:
 prod: build
 	@echo "Starting Weaver backend..."
 	@cd Weaver && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 > ../weaver.log 2>&1 & echo $$! > ../weaver.pid
+	@sleep 1
 	@echo "Weaver backend started (PID: $$(cat weaver.pid))"
 	@echo "Starting Caddy server..."
-	@caddy start --config Caddyfile > caddy.log 2>&1
+	@caddy start --config $(PWD)/Caddyfile --adapter caddyfile 2>&1 | tee caddy.log
+	@sleep 1
 	@echo "✓ Production server started"
-	@echo "  Application: http://localhost:8080"
+	@echo "  Application: http://0.0.0.0:8080"
 	@echo "  Backend: http://localhost:8000 (internal)"
 	@echo "  Logs: weaver.log, caddy.log"
 
