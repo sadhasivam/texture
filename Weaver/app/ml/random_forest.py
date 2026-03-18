@@ -35,6 +35,9 @@ class RandomForestAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Builds an ensemble of decision trees for robust predictions.",
+            tags=["ensemble", "bagging", "robust", "feature-importance", "handles-missing"],
+            difficulty="intermediate",
+            model_family="tree",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

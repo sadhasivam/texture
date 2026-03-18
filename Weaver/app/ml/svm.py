@@ -36,6 +36,9 @@ class SVMAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Finds optimal hyperplane to separate classes or predict continuous values.",
+            tags=["kernel-methods", "margin-based", "powerful", "scaled-features", "optimization"],
+            difficulty="advanced",
+            model_family="kernel",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

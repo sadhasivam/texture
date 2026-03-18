@@ -37,6 +37,9 @@ class GradientBoostingAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Ensemble method that builds trees sequentially, each correcting errors of the previous.",
+            tags=["ensemble", "boosting", "powerful", "feature-importance", "gradient-descent"],
+            difficulty="advanced",
+            model_family="tree",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

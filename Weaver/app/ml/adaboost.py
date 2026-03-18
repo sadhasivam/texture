@@ -37,6 +37,9 @@ class AdaBoostAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Adaptive Boosting - combines weak learners iteratively, focusing on misclassified samples.",
+            tags=["ensemble", "boosting", "adaptive", "feature-importance", "iterative"],
+            difficulty="advanced",
+            model_family="tree",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

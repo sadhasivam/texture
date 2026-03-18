@@ -35,6 +35,9 @@ class DecisionTreeAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Builds a tree-based model for regression or classification.",
+            tags=["interpretable", "beginner-friendly", "non-parametric", "visual", "feature-importance"],
+            difficulty="beginner",
+            model_family="tree",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

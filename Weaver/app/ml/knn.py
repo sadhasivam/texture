@@ -36,6 +36,9 @@ class KNNAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Classifies or predicts based on the k closest data points in feature space.",
+            tags=["instance-based", "non-parametric", "simple", "lazy-learning", "distance-based"],
+            difficulty="intermediate",
+            model_family="instance",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

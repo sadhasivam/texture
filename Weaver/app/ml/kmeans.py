@@ -27,6 +27,9 @@ class KMeansAdapter(AlgorithmAdapter):
             group="unsupervised",
             subgroup="clustering",
             description="Partitions data into K distinct clusters based on feature similarity.",
+            tags=["unsupervised", "fast", "simple", "centroid-based", "beginner-friendly"],
+            difficulty="beginner",
+            model_family="clustering",
             target=AlgorithmTarget(
                 required=False,  # Unsupervised - no target needed!
                 allowed_types=[],

@@ -27,6 +27,9 @@ class DBSCANAdapter(AlgorithmAdapter):
             group="unsupervised",
             subgroup="clustering",
             description="Density-based clustering that finds clusters of arbitrary shape and identifies outliers.",
+            tags=["unsupervised", "density-based", "noise-detection", "arbitrary-shapes", "parameter-sensitive"],
+            difficulty="intermediate",
+            model_family="clustering",
             target=AlgorithmTarget(
                 required=False,
                 allowed_types=[],

@@ -27,6 +27,9 @@ class LinearRegressionAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="regression",
             description="Predicts a continuous numeric target from one or more features.",
+            tags=["interpretable", "beginner-friendly", "parametric", "fast", "linear"],
+            difficulty="beginner",
+            model_family="linear",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric"],

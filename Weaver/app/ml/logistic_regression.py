@@ -26,6 +26,9 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="classification",
             description="Predicts a categorical target from one or more features.",
+            tags=["interpretable", "beginner-friendly", "parametric", "probabilistic", "linear"],
+            difficulty="beginner",
+            model_family="linear",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["categorical", "boolean"],

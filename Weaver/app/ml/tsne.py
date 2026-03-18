@@ -26,6 +26,9 @@ class TSNEAdapter(AlgorithmAdapter):
             group="unsupervised",
             subgroup="dimensionality_reduction",
             description="Non-linear dimensionality reduction optimized for visualization by preserving local structure.",
+            tags=["unsupervised", "non-linear", "visualization", "manifold-learning", "slow"],
+            difficulty="advanced",
+            model_family="dimensionality_reduction",
             target=AlgorithmTarget(
                 required=False,
                 allowed_types=["numeric", "categorical", "boolean"],

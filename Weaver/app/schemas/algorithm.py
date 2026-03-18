@@ -35,6 +35,12 @@ class AlgorithmMetadata(BaseModel):
     group: str  # supervised, unsupervised, anomaly_detection
     subgroup: str  # regression, classification, both, clustering, dimensionality_reduction
     description: str
+
+    # Enriched ontology
+    tags: list[str]  # interpretable, ensemble, beginner-friendly, etc.
+    difficulty: str  # beginner, intermediate, advanced
+    model_family: str  # linear, tree, instance, probabilistic, kernel, etc.
+
     target: AlgorithmTarget
     features: AlgorithmFeatures
     parameters: list[AlgorithmParameter]
@@ -49,3 +55,6 @@ class AlgorithmSummary(BaseModel):
     group: str
     subgroup: str
     description: str
+    tags: list[str]
+    difficulty: str
+    model_family: str

@@ -26,6 +26,9 @@ class PCAAdapter(AlgorithmAdapter):
             group="unsupervised",
             subgroup="dimensionality_reduction",
             description="Reduces dimensionality by projecting data onto principal components that capture maximum variance.",
+            tags=["unsupervised", "linear", "variance-preserving", "fast", "interpretable"],
+            difficulty="intermediate",
+            model_family="dimensionality_reduction",
             target=AlgorithmTarget(
                 required=False,  # Can optionally use target for coloring
                 allowed_types=["numeric", "categorical", "boolean"],

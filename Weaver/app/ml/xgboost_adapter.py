@@ -37,6 +37,9 @@ class XGBoostAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="both",
             description="Extreme Gradient Boosting - highly optimized gradient boosting implementation.",
+            tags=["ensemble", "boosting", "production-ready", "feature-importance", "handles-missing", "industry-standard"],
+            difficulty="advanced",
+            model_family="tree",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["numeric", "categorical", "boolean"],

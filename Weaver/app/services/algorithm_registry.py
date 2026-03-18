@@ -23,6 +23,9 @@ class AlgorithmRegistry:
                     group=metadata.group,
                     subgroup=metadata.subgroup,
                     description=metadata.description,
+                    tags=metadata.tags,
+                    difficulty=metadata.difficulty,
+                    model_family=metadata.model_family,
                 )
             )
         return summaries

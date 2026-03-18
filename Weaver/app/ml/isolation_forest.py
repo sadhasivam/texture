@@ -26,6 +26,9 @@ class IsolationForestAdapter(AlgorithmAdapter):
             group="anomaly_detection",
             subgroup="anomaly_detection",
             description="Detects anomalies by isolating observations through random partitioning.",
+            tags=["unsupervised", "anomaly-detection", "ensemble", "isolation-based", "outlier-detection"],
+            difficulty="intermediate",
+            model_family="isolation",
             target=AlgorithmTarget(
                 required=False,
                 allowed_types=[],

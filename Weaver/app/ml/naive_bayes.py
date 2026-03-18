@@ -31,6 +31,9 @@ class NaiveBayesAdapter(AlgorithmAdapter):
             group="supervised",
             subgroup="classification",
             description="Probabilistic classifier based on Bayes' theorem with feature independence assumption.",
+            tags=["interpretable", "beginner-friendly", "probabilistic", "fast", "text-friendly"],
+            difficulty="beginner",
+            model_family="probabilistic",
             target=AlgorithmTarget(
                 required=True,
                 allowed_types=["categorical", "boolean"],
