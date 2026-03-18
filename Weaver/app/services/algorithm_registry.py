@@ -20,6 +20,8 @@ class AlgorithmRegistry:
                     id=metadata.id,
                     name=metadata.name,
                     category=metadata.category,
+                    group=metadata.group,
+                    subgroup=metadata.subgroup,
                     description=metadata.description,
                 )
             )

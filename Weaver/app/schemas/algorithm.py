@@ -32,6 +32,8 @@ class AlgorithmMetadata(BaseModel):
     id: str
     name: str
     category: str
+    group: str  # supervised, unsupervised, anomaly_detection
+    subgroup: str  # regression, classification, both, clustering, dimensionality_reduction
     description: str
     target: AlgorithmTarget
     features: AlgorithmFeatures
@@ -44,4 +46,6 @@ class AlgorithmSummary(BaseModel):
     id: str
     name: str
     category: str
+    group: str
+    subgroup: str
     description: str

@@ -9,6 +9,7 @@ dependencies = [
     "pandas>=2.2.0",
     "numpy>=2.0.0",
     "scikit-learn>=1.5.0",
+    "xgboost>=2.0.0",
     "python-multipart>=0.0.12",
     "pydantic>=2.9.0",
     "pydantic-settings>=2.0.0",

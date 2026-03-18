@@ -19,9 +19,9 @@ async def upload_dataset(file: UploadFile = File(...)):
         response = await dataset_service.upload_dataset(file.filename, content)
         return response
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to process dataset: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to process dataset: {str(e)}") from e
 
 
 @router.get("/{dataset_id}", response_model=DatasetDetails)

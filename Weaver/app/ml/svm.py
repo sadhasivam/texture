@@ -33,6 +33,8 @@ class SVMAdapter(AlgorithmAdapter):
             id=self.id,
             name=self.name,
             category=self.category,
+            group="supervised",
+            subgroup="both",
             description="Finds optimal hyperplane to separate classes or predict continuous values.",
             target=AlgorithmTarget(
                 required=True,
@@ -54,9 +56,10 @@ class SVMAdapter(AlgorithmAdapter):
                 ),
                 AlgorithmParameter(
                     name="kernel",
-                    type="string",
+                    type="select",
                     default="rbf",
                     label="Kernel type",
+                    options=["linear", "rbf", "poly", "sigmoid"],
                 ),
                 AlgorithmParameter(
                     name="C",
@@ -77,65 +80,6 @@ class SVMAdapter(AlgorithmAdapter):
                 "Features are automatically scaled for SVM",
             ],
         )
-
-    def validate_mapping(
-        self,
-        schema: list[dict],
-        target: str,
-        features: list[str],
-        parameters: dict,
-    ) -> list[str]:
-        errors = []
-
-        # Create column type lookup
-        col_types = {col["name"]: col["inferred_type"] for col in schema}
-
-        # Validate target exists
-        if target not in col_types:
-            errors.append(f"Target column '{target}' not found in dataset")
-            return errors
-
-        # Validate target type
-        if col_types[target] not in ["numeric", "categorical", "boolean"]:
-            errors.append(
-                f"Target column '{target}' must be numeric, categorical, or boolean"
-            )
-
-        # Validate features exist
-        for feature in features:
-            if feature not in col_types:
-                errors.append(f"Feature column '{feature}' not found in dataset")
-
-        # Validate features are numeric
-        for feature in features:
-            if feature in col_types and col_types[feature] != "numeric":
-                errors.append(f"Feature column '{feature}' must be numeric")
-
-        # Validate target not in features
-        if target in features:
-            errors.append("Target column cannot also be a feature")
-
-        # Validate at least one feature
-        if len(features) == 0:
-            errors.append("At least one feature column is required")
-
-        # Validate test_size parameter
-        test_size = parameters.get("test_size", 0.2)
-        if not isinstance(test_size, (int, float)) or test_size <= 0 or test_size >= 1:
-            errors.append("test_size must be between 0 and 1")
-
-        # Validate kernel parameter
-        kernel = parameters.get("kernel", "rbf")
-        valid_kernels = ["linear", "rbf", "poly", "sigmoid"]
-        if kernel not in valid_kernels:
-            errors.append(f"kernel must be one of {valid_kernels}")
-
-        # Validate C parameter
-        C = parameters.get("C", 1.0)
-        if not isinstance(C, (int, float)) or C <= 0:
-            errors.append("C must be a positive number")
-
-        return errors
 
     def run(
         self,

@@ -13,9 +13,9 @@ async def create_run(request: RunRequest):
         response = await run_service.execute_run(request)
         return response
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Run execution failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Run execution failed: {str(e)}") from e
 
 
 @router.get("/{run_id}", response_model=RunResponse)
