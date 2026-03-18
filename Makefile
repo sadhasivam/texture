@@ -44,16 +44,26 @@ stop:
 	@pkill -9 -f "caddy" 2>/dev/null || true
 	@echo ""
 	@echo "Stopping backend..."
-	@pkill -9 -f "uvicorn" 2>/dev/null && echo "  ✓ uvicorn stopped" || true
-	@pkill -9 -f "python.*uvicorn" 2>/dev/null && echo "  ✓ python uvicorn stopped" || true
-	@pkill -9 -f "python.*app.main" 2>/dev/null && echo "  ✓ app.main stopped" || true
-	@pkill -9 python3 2>/dev/null && echo "  ✓ python3 stopped" || echo "  - No Python processes"
+	@if [ -f weaver.pid ]; then \
+		PID=$$(cat weaver.pid 2>/dev/null); \
+		if [ -n "$$PID" ] && kill -0 $$PID 2>/dev/null; then \
+			kill -9 $$PID && echo "  ✓ Backend stopped (PID $$PID)"; \
+		fi; \
+	fi
+	@pkill -9 -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Killed uvicorn processes" || true
+	@pkill -9 -f ".venv/bin/python -m uvicorn" 2>/dev/null || true
+	@pkill -9 -f "python -m uvicorn" 2>/dev/null || true
 	@echo ""
 	@echo "Cleaning up..."
 	@rm -f weaver.pid
 	@sleep 1
 	@echo ""
-	@ps aux | grep -E "(uvicorn|caddy|python)" | grep -v grep || echo "✓ All servers stopped"
+	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
+		echo "⚠ Warning: Backend still running!"; \
+		ps aux | grep "uvicorn" | grep -v grep; \
+	else \
+		echo "✓ All servers stopped"; \
+	fi
 
 # Check status
 status:
