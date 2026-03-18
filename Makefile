@@ -18,18 +18,26 @@ start:
 	@echo "  Logs: weaver.log, kolam.log"
 
 stop:
-	@echo "Stopping development servers..."
-	@echo "  Stopping Weaver backend..."
-	@pkill -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Weaver stopped" || true
-	@pkill -f "uv run uvicorn" 2>/dev/null || true
-	@echo "  Stopping Kolam frontend..."
-	@pkill -f "rsbuild dev" 2>/dev/null && echo "  ✓ Kolam stopped" || true
-	@pkill -f "rsbuild-node" 2>/dev/null || true
-	@pkill -f "pnpm dev" 2>/dev/null || true
-	@rm -f weaver.pid kolam.pid
-	@sleep 1
+	@echo "Stopping all development servers..."
 	@echo ""
-	@echo "✓ All development servers stopped"
+	@echo "Killing backend processes..."
+	@pkill -9 -f "uvicorn" 2>/dev/null && echo "  ✓ uvicorn killed" || echo "  - No uvicorn processes"
+	@pkill -9 -f "python.*app.main" 2>/dev/null || true
+	@pkill -9 -f "uv run" 2>/dev/null || true
+	@echo ""
+	@echo "Killing frontend processes..."
+	@pkill -9 -f "rsbuild" 2>/dev/null && echo "  ✓ rsbuild killed" || echo "  - No rsbuild processes"
+	@pkill -9 -f "pnpm" 2>/dev/null && echo "  ✓ pnpm killed" || echo "  - No pnpm processes"
+	@pkill -9 -f "node.*rsbuild" 2>/dev/null || true
+	@echo ""
+	@echo "Cleaning up PID files..."
+	@rm -f weaver.pid kolam.pid
+	@sleep 2
+	@echo ""
+	@echo "Final verification..."
+	@ps aux | grep -E "(uvicorn|rsbuild|pnpm)" | grep -v grep || echo "  ✓ All processes stopped"
+	@echo ""
+	@echo "✓ Cleanup complete"
 
 # Production mode (Caddy serves built frontend + proxies to backend)
 build:
@@ -51,28 +59,24 @@ prod: build
 	@echo "  Logs: weaver.log, caddy.log"
 
 prod-stop:
-	@echo "Stopping production servers..."
-	@echo "  Stopping Caddy..."
-	@caddy stop 2>/dev/null && echo "  ✓ Caddy stopped" || echo "  - Caddy not running"
-	@echo "  Stopping Weaver backend..."
-	@pkill -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Weaver stopped" || true
-	@pkill -f "uv run uvicorn" 2>/dev/null || true
-	@rm -f weaver.pid
-	@sleep 1
+	@echo "Stopping all production servers..."
 	@echo ""
-	@echo "Verifying all processes stopped..."
-	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
-		echo "  ⚠ Warning: Some backend processes still running"; \
-		pkill -9 -f "uvicorn app.main:app" 2>/dev/null || true; \
-	else \
-		echo "  ✓ No backend processes running"; \
-	fi
-	@if pgrep -f "caddy" > /dev/null 2>&1; then \
-		echo "  ⚠ Warning: Caddy still running"; \
-		pkill -9 -f "caddy" 2>/dev/null || true; \
-	else \
-		echo "  ✓ No Caddy processes running"; \
-	fi
+	@echo "Stopping Caddy..."
+	@caddy stop 2>/dev/null && echo "  ✓ Caddy stopped gracefully" || echo "  - Caddy not running or already stopped"
+	@sleep 1
+	@pkill -9 -f "caddy" 2>/dev/null && echo "  ✓ Force killed remaining Caddy processes" || true
+	@echo ""
+	@echo "Stopping Weaver backend..."
+	@pkill -9 -f "uvicorn" 2>/dev/null && echo "  ✓ uvicorn killed" || echo "  - No uvicorn processes"
+	@pkill -9 -f "python.*app.main" 2>/dev/null || true
+	@pkill -9 -f "uv run" 2>/dev/null || true
+	@echo ""
+	@echo "Cleaning up PID files..."
+	@rm -f weaver.pid
+	@sleep 2
+	@echo ""
+	@echo "Final verification..."
+	@ps aux | grep -E "(uvicorn|caddy)" | grep -v grep || echo "  ✓ All processes stopped"
 	@echo ""
 	@echo "✓ All production servers stopped"
 
