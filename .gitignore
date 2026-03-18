@@ -138,6 +138,9 @@ pnpm-debug.log*
 data-set/**.*
 snapshopts/*.*
 
+# Caddy backup
+Caddyfile.bak
+
 # Vercel
 .vercel
 *.vercel.json.bak

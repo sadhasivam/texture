@@ -1,6 +1,9 @@
 # Texture Production Server Configuration
 # Serves application via HTTP on port 8080
 # Access at: http://YOUR_SERVER_IP:8080
+#
+# IMPORTANT: Update the root path below to match your deployment directory
+# Example: /root/texture/Kolam/dist or /home/youruser/texture/Kolam/dist
 
 {
 	# Disable automatic HTTPS for IP address deployment
@@ -8,7 +11,8 @@
 }
 
 http://0.0.0.0:8080 {
-	root * Kolam/dist
+	# Use absolute path - CHANGE THIS to your actual path
+	root * /root/texture/Kolam/dist
 	encode gzip
 
 	# Proxy API requests to backend

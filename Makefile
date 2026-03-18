@@ -46,6 +46,8 @@ build:
 	@echo "✓ Frontend built to Kolam/dist"
 
 prod: build
+	@echo "Updating Caddyfile with absolute path..."
+	@sed -i 's|root \* .*/Kolam/dist|root * $(PWD)/Kolam/dist|g' Caddyfile || sed -i.bak 's|root \* .*/Kolam/dist|root * $(PWD)/Kolam/dist|g' Caddyfile
 	@echo "Starting Weaver backend..."
 	@cd Weaver && uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 > ../weaver.log 2>&1 & echo $$! > ../weaver.pid
 	@sleep 1
@@ -57,6 +59,8 @@ prod: build
 	@echo "  Application: http://0.0.0.0:8080"
 	@echo "  Backend: http://localhost:8000 (internal)"
 	@echo "  Logs: weaver.log, caddy.log"
+	@echo ""
+	@echo "Verify frontend path: $(PWD)/Kolam/dist"
 
 prod-stop:
 	@echo "Stopping all production servers..."
