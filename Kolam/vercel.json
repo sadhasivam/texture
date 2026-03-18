@@ -16,6 +16,10 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "http://138.197.96.152:8080*"
     }
   ]
 }
