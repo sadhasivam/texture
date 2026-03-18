@@ -1,0 +1,35 @@
+# Texture Production Server Configuration
+#
+# This Caddyfile serves the Texture application through a single URL:
+# - Frontend: Serves Kolam/dist (built React app) on http://localhost:8080
+# - Backend: Proxies /api/* requests to Weaver backend at localhost:8000
+#
+# Usage:
+#   make prod       # Build frontend and start with Caddy
+#   make prod-stop  # Stop production servers
+
+:8080 {
+	# Root directory for static files
+	root * Kolam/dist
+
+	# Enable gzip compression
+	encode gzip
+
+	# Proxy API requests to backend (Weaver on port 8000)
+	handle /api/* {
+		reverse_proxy localhost:8000
+	}
+
+	# Serve static files with SPA fallback
+	handle {
+		# Try to serve the file, or fall back to index.html for SPA routing
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Logging
+	log {
+		output stdout
+		format console
+	}
+}
