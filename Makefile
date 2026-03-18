@@ -44,14 +44,16 @@ stop:
 	@pkill -9 -f "caddy" 2>/dev/null || true
 	@echo ""
 	@echo "Stopping backend..."
-	@pkill -9 -f "uvicorn" 2>/dev/null && echo "  ✓ Backend stopped" || echo "  - Backend not running"
-	@pkill -9 -f "python.*app.main" 2>/dev/null || true
+	@pkill -9 -f "uvicorn" 2>/dev/null && echo "  ✓ uvicorn stopped" || true
+	@pkill -9 -f "python.*uvicorn" 2>/dev/null && echo "  ✓ python uvicorn stopped" || true
+	@pkill -9 -f "python.*app.main" 2>/dev/null && echo "  ✓ app.main stopped" || true
+	@pkill -9 python3 2>/dev/null && echo "  ✓ python3 stopped" || echo "  - No Python processes"
 	@echo ""
 	@echo "Cleaning up..."
 	@rm -f weaver.pid
 	@sleep 1
 	@echo ""
-	@ps aux | grep -E "(uvicorn|caddy)" | grep -v grep || echo "✓ All servers stopped"
+	@ps aux | grep -E "(uvicorn|caddy|python)" | grep -v grep || echo "✓ All servers stopped"
 
 # Check status
 status:
