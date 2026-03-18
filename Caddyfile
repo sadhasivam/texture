@@ -2,7 +2,12 @@
 # Serves application via HTTP on port 8080
 # Access at: http://YOUR_SERVER_IP:8080
 
-0.0.0.0:8080 {
+{
+	# Disable automatic HTTPS for IP address deployment
+	auto_https off
+}
+
+http://0.0.0.0:8080 {
 	root * Kolam/dist
 	encode gzip
 
