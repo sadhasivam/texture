@@ -10,10 +10,12 @@ class RunRequest(BaseModel):
 
 
 class RunSummary(BaseModel):
-    target_column: str
+    model_config = {"extra": "allow"}
+
+    target_column: str | None = None
     feature_columns: list[str]
-    train_rows: int
-    test_rows: int
+    train_rows: int | None = None
+    test_rows: int | None = None
 
 
 class ChartData(BaseModel):

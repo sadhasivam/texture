@@ -51,7 +51,7 @@ export default function MappingForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!targetColumn) {
+    if (algorithm.target.required && !targetColumn) {
       alert('Please select a target column');
       return;
     }
@@ -64,22 +64,30 @@ export default function MappingForm({
     runMutation.mutate({
       algorithm_id: algorithm.id,
       dataset_id: dataset.dataset_id,
-      target_column: targetColumn,
+      target_column: targetColumn || '',
       feature_columns: featureColumns,
       parameters,
     });
+  };
+
+  const isFormValid = () => {
+    if (algorithm.target.required && !targetColumn) return false;
+    if (featureColumns.length === 0) return false;
+    return true;
   };
 
   return (
     <form className="mapping-form" onSubmit={handleSubmit}>
       <h3>Configure Run</h3>
 
-      <TargetSelector
-        columns={dataset.columns}
-        selectedColumn={targetColumn}
-        onSelect={handleTargetChange}
-        allowedTypes={algorithm.target.allowed_types}
-      />
+      {algorithm.target.required && (
+        <TargetSelector
+          columns={dataset.columns}
+          selectedColumn={targetColumn}
+          onSelect={handleTargetChange}
+          allowedTypes={algorithm.target.allowed_types}
+        />
+      )}
 
       <FeatureSelector
         columns={dataset.columns}
@@ -101,7 +109,7 @@ export default function MappingForm({
         <button
           type="submit"
           className="run-button"
-          disabled={runMutation.isPending || !targetColumn || featureColumns.length === 0}
+          disabled={runMutation.isPending || !isFormValid()}
         >
           {runMutation.isPending ? 'Running...' : 'Run Algorithm'}
         </button>

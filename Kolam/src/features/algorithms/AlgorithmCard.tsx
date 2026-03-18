@@ -12,6 +12,9 @@ export default function AlgorithmCard({
   isSelected,
   onSelect,
 }: AlgorithmCardProps) {
+  const difficultyClass = `difficulty-badge difficulty-${algorithm.difficulty}`;
+  const displayTags = algorithm.tags.slice(0, 3);
+
   return (
     <button
       className={`algorithm-card ${isSelected ? 'selected' : ''}`}
@@ -20,9 +23,18 @@ export default function AlgorithmCard({
     >
       <div className="algorithm-card-header">
         <h3>{algorithm.name}</h3>
-        <span className="algorithm-category">{algorithm.category}</span>
+        <span className={difficultyClass}>{algorithm.difficulty}</span>
       </div>
       <p className="algorithm-description">{algorithm.description}</p>
+      {displayTags.length > 0 && (
+        <div className="algorithm-tags">
+          {displayTags.map((tag) => (
+            <span key={tag} className="algorithm-tag">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
     </button>
   );
 }

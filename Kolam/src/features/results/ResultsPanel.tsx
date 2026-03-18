@@ -10,19 +10,23 @@ interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ result }: ResultsPanelProps) {
+  const hasSplitData = result.summary.train_rows != null && result.summary.test_rows != null;
+
   return (
     <div className="results-panel">
       <div className="results-header">
         <h2>Results</h2>
-        <div className="results-summary">
-          <span className="summary-item">
-            <strong>{result.summary.train_rows}</strong> training rows
-          </span>
-          <span className="summary-separator">·</span>
-          <span className="summary-item">
-            <strong>{result.summary.test_rows}</strong> test rows
-          </span>
-        </div>
+        {hasSplitData && (
+          <div className="results-summary">
+            <span className="summary-item">
+              <strong>{result.summary.train_rows}</strong> training rows
+            </span>
+            <span className="summary-separator">·</span>
+            <span className="summary-item">
+              <strong>{result.summary.test_rows}</strong> test rows
+            </span>
+          </div>
+        )}
       </div>
 
       {result.warnings.length > 0 && <WarningsPanel warnings={result.warnings} />}

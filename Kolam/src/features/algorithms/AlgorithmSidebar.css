@@ -19,6 +19,15 @@
   color: var(--color-black);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.algorithm-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: var(--font-weight-regular);
 }
 
 .sidebar-content {
@@ -38,4 +47,107 @@
 
 .sidebar-error {
   color: var(--color-error);
+}
+
+/* Algorithm Groups */
+.algorithm-group {
+  margin-bottom: var(--space-2);
+}
+
+.group-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-gray-50);
+  border: none;
+  border-bottom: var(--border-width) solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.group-header:hover {
+  background-color: var(--color-gray-100);
+}
+
+.group-icon {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+  width: 12px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.group-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-black);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.group-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  background-color: var(--color-white);
+  padding: 2px var(--space-2);
+  border: var(--border-width) solid var(--border-color);
+  min-width: 24px;
+  text-align: center;
+}
+
+.group-content {
+  background-color: var(--color-white);
+}
+
+/* Algorithm Subgroups */
+.algorithm-subgroup {
+  margin-bottom: var(--space-1);
+}
+
+.subgroup-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-6);
+  background-color: var(--color-white);
+  border: none;
+  border-bottom: var(--border-width) solid var(--color-gray-100);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.subgroup-header:hover {
+  background-color: var(--color-gray-50);
+}
+
+.subgroup-icon {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  width: 10px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.subgroup-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-gray-700);
+  flex: 1;
+}
+
+.subgroup-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  min-width: 20px;
+  text-align: center;
+}
+
+.subgroup-content {
+  padding-left: var(--space-8);
 }

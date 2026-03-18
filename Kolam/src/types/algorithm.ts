@@ -29,7 +29,12 @@ export interface AlgorithmMetadata {
   id: string;
   name: string;
   category: string;
+  group: string;
+  subgroup: string;
   description: string;
+  tags: string[];
+  difficulty: string;
+  model_family: string;
   target: AlgorithmTarget;
   features: AlgorithmFeatures;
   parameters: AlgorithmParameter[];
@@ -41,5 +46,10 @@ export interface AlgorithmSummary {
   id: string;
   name: string;
   category: string;
+  group: string;
+  subgroup: string;
   description: string;
+  tags: string[];
+  difficulty: string;
+  model_family: string;
 }

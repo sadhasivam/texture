@@ -7,10 +7,12 @@ export interface RunRequest {
 }
 
 export interface RunSummary {
-  target_column: string;
+  target_column?: string;
   feature_columns: string[];
-  train_rows: number;
-  test_rows: number;
+  train_rows?: number;
+  test_rows?: number;
+  // Allow algorithm-specific fields
+  [key: string]: string | number | string[] | number[] | undefined;
 }
 
 export interface ChartData {

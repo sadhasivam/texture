@@ -58,31 +58,37 @@ class MetadataDrivenValidator:
         """Validate target column based on metadata."""
         errors = []
 
-        # Check if target exists
-        if target not in col_types:
-            errors.append(f"Target column '{target}' not found in dataset")
-            return errors  # Can't continue validation without valid target
+        # If target is not required and empty, skip validation
+        if not metadata.target.required and not target:
+            return errors
 
         # Check if target is required
         if metadata.target.required and not target:
             errors.append("Target column is required")
+            return errors
 
-        # Check target type
-        target_type = col_types[target]
-        allowed_types = metadata.target.allowed_types
+        # Check if target exists (only if a target was provided)
+        if target and target not in col_types:
+            errors.append(f"Target column '{target}' not found in dataset")
+            return errors  # Can't continue validation without valid target
 
-        if target_type not in allowed_types:
-            if len(allowed_types) == 1:
-                errors.append(
-                    f"Target column '{target}' must be {allowed_types[0]}, "
-                    f"but found {target_type}"
-                )
-            else:
-                types_str = ", ".join(allowed_types)
-                errors.append(
-                    f"Target column '{target}' must be one of: {types_str}, "
-                    f"but found {target_type}"
-                )
+        # Check target type (only if target exists)
+        if target:
+            target_type = col_types[target]
+            allowed_types = metadata.target.allowed_types
+
+            if allowed_types and target_type not in allowed_types:
+                if len(allowed_types) == 1:
+                    errors.append(
+                        f"Target column '{target}' must be {allowed_types[0]}, "
+                        f"but found {target_type}"
+                    )
+                else:
+                    types_str = ", ".join(allowed_types)
+                    errors.append(
+                        f"Target column '{target}' must be one of: {types_str}, "
+                        f"but found {target_type}"
+                    )
 
         return errors
 
@@ -144,8 +150,8 @@ class MetadataDrivenValidator:
                             f"but found {feature_type}"
                         )
 
-        # Check target not in features
-        if target in features:
+        # Check target not in features (only if target is provided)
+        if target and target in features:
             errors.append("Target column cannot also be a feature")
 
         return errors
