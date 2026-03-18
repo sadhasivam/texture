@@ -1,5 +1,9 @@
 .PHONY: start stop prod prod-stop build
 
+# Export PATH to include pnpm and uv
+export PNPM_HOME := $(HOME)/.local/share/pnpm
+export PATH := $(PNPM_HOME):$(HOME)/.local/bin:$(HOME)/.cargo/bin:$(PATH)
+
 # Development mode (separate frontend dev server)
 start:
 	@echo "Starting Weaver backend..."
