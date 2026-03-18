@@ -8,6 +8,9 @@ export default defineConfig({
     entry: {
       index: './src/main.tsx',
     },
+    define: {
+      'import.meta.env.VITE_API_URL': JSON.stringify('/api/v1'),
+    },
   },
   html: {
     title: 'Texture - ML Learning Studio',
