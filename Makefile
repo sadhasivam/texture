@@ -1,4 +1,4 @@
-.PHONY: start stop prod prod-stop build
+.PHONY: start stop prod prod-stop build status
 
 # Export PATH to include pnpm and uv
 export PNPM_HOME := $(HOME)/.local/share/pnpm
@@ -18,15 +18,18 @@ start:
 	@echo "  Logs: weaver.log, kolam.log"
 
 stop:
-	@echo "Stopping servers..."
-	@pkill -f "uvicorn app.main:app" 2>/dev/null || true
+	@echo "Stopping development servers..."
+	@echo "  Stopping Weaver backend..."
+	@pkill -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Weaver stopped" || true
 	@pkill -f "uv run uvicorn" 2>/dev/null || true
-	@pkill -f "rsbuild dev" 2>/dev/null || true
+	@echo "  Stopping Kolam frontend..."
+	@pkill -f "rsbuild dev" 2>/dev/null && echo "  ✓ Kolam stopped" || true
 	@pkill -f "rsbuild-node" 2>/dev/null || true
 	@pkill -f "pnpm dev" 2>/dev/null || true
 	@rm -f weaver.pid kolam.pid
 	@sleep 1
-	@echo "✓ All servers stopped"
+	@echo ""
+	@echo "✓ All development servers stopped"
 
 # Production mode (Caddy serves built frontend + proxies to backend)
 build:
@@ -49,9 +52,58 @@ prod: build
 
 prod-stop:
 	@echo "Stopping production servers..."
-	@caddy stop 2>/dev/null || true
-	@pkill -f "uvicorn app.main:app" 2>/dev/null || true
+	@echo "  Stopping Caddy..."
+	@caddy stop 2>/dev/null && echo "  ✓ Caddy stopped" || echo "  - Caddy not running"
+	@echo "  Stopping Weaver backend..."
+	@pkill -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Weaver stopped" || true
 	@pkill -f "uv run uvicorn" 2>/dev/null || true
 	@rm -f weaver.pid
 	@sleep 1
-	@echo "✓ Production servers stopped"
+	@echo ""
+	@echo "Verifying all processes stopped..."
+	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
+		echo "  ⚠ Warning: Some backend processes still running"; \
+		pkill -9 -f "uvicorn app.main:app" 2>/dev/null || true; \
+	else \
+		echo "  ✓ No backend processes running"; \
+	fi
+	@if pgrep -f "caddy" > /dev/null 2>&1; then \
+		echo "  ⚠ Warning: Caddy still running"; \
+		pkill -9 -f "caddy" 2>/dev/null || true; \
+	else \
+		echo "  ✓ No Caddy processes running"; \
+	fi
+	@echo ""
+	@echo "✓ All production servers stopped"
+
+# Check status of running services
+status:
+	@echo "Checking Texture services status..."
+	@echo ""
+	@echo "Backend (Weaver):"
+	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
+		echo "  ✓ Running (PID: $$(pgrep -f 'uvicorn app.main:app'))"; \
+	else \
+		echo "  ✗ Not running"; \
+	fi
+	@echo ""
+	@echo "Frontend (Kolam dev server):"
+	@if pgrep -f "rsbuild dev" > /dev/null 2>&1; then \
+		echo "  ✓ Running (PID: $$(pgrep -f 'rsbuild dev'))"; \
+	else \
+		echo "  ✗ Not running"; \
+	fi
+	@echo ""
+	@echo "Caddy (Production):"
+	@if pgrep -f "caddy" > /dev/null 2>&1; then \
+		echo "  ✓ Running (PID: $$(pgrep -f 'caddy'))"; \
+	else \
+		echo "  ✗ Not running"; \
+	fi
+	@echo ""
+	@if [ -f weaver.pid ]; then \
+		echo "PID files found: weaver.pid"; \
+	fi
+	@if [ -f kolam.pid ]; then \
+		echo "PID files found: kolam.pid"; \
+	fi
