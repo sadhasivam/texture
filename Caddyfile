@@ -1,27 +1,17 @@
 # Texture Production Server Configuration
-#
-# This Caddyfile supports two configurations:
-# 1. HTTP via IP address (default, active below)
-# 2. HTTPS via domain name (commented out, uncomment when ready)
-#
-# Usage:
-#   make prod       # Build frontend and start with Caddy
-#   make prod-stop  # Stop production servers
-
-# ==============================================================================
-# OPTION 1: HTTP via IP Address (Currently Active)
-# ==============================================================================
-# Use this for initial deployment and testing with IP address
+# Serves application via HTTP on port 8080
 # Access at: http://YOUR_SERVER_IP:8080
 
 0.0.0.0:8080 {
 	root * Kolam/dist
 	encode gzip
 
+	# Proxy API requests to backend
 	handle /api/* {
 		reverse_proxy localhost:8000
 	}
 
+	# Serve static files with SPA fallback
 	handle {
 		try_files {path} /index.html
 		file_server
@@ -32,35 +22,3 @@
 		format console
 	}
 }
-
-# ==============================================================================
-# OPTION 2: HTTPS via Domain (Commented Out)
-# ==============================================================================
-# Uncomment this block and comment out OPTION 1 when you have a domain
-# Caddy will automatically provision Let's Encrypt SSL certificates
-#
-# Steps to enable:
-# 1. Point your domain DNS A record to your server IP
-# 2. Comment out OPTION 1 above (the 0.0.0.0:8080 block)
-# 3. Uncomment the block below and replace 'yourdomain.com' with your actual domain
-# 4. Run: make prod-stop && make prod
-#
-# yourdomain.com {
-# 	root * Kolam/dist
-# 	encode gzip
-#
-# 	handle /api/* {
-# 		reverse_proxy localhost:8000
-# 	}
-#
-# 	handle {
-# 		try_files {path} /index.html
-# 		file_server
-# 	}
-#
-# 	log {
-# 		output file /var/log/caddy/texture.log {
-# 			format json
-# 		}
-# 	}
-# }
