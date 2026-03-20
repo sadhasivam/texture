@@ -2,7 +2,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from app.services.algorithm_registry import registry
+from app.services.spec_registry import spec_registry as registry
 
 
 class TestKMeans:
@@ -27,7 +27,7 @@ class TestKMeans:
             "feature_columns": ["feature_1", "feature_2"],
         }
 
-        errors = algorithm.validate(schema, mapping, {"n_clusters": 3})
+        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"n_clusters": 3})
         assert len(errors) == 0
 
     def test_validate_minimum_features(self, algorithm):
@@ -42,7 +42,7 @@ class TestKMeans:
             "feature_columns": ["feature_1"],
         }
 
-        errors = algorithm.validate(schema, mapping, {"n_clusters": 3})
+        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"n_clusters": 3})
         assert len(errors) > 0
 
     def test_run_produces_clustering_metrics(self, algorithm, sample_clustering_data, sample_params_clustering):
@@ -176,7 +176,7 @@ class TestPCA:
 
         assert "charts" in result
         chart_names = [c["type"] for c in result["charts"]]
-        assert "scree_plot" in chart_names
+        assert "variance_explained" in chart_names
 
     def test_variance_explained_sums_to_one(self, algorithm, sample_clustering_data):
         """Test that cumulative variance approaches 1.0."""
@@ -203,7 +203,7 @@ class TestPCA:
             )
 
             assert "metrics" in result
-            assert result["metrics"]["explained_variance_ratio"] > 0
+            assert sum(result["metrics"]["explained_variance_ratio"]) > 0
 
 
 class TestTSNE:
@@ -240,7 +240,7 @@ class TestTSNE:
 
         assert "charts" in result
         chart_names = [c["type"] for c in result["charts"]]
-        assert "embedding" in chart_names or "tsne_plot" in chart_names
+        assert "tsne_scatter" in chart_names
 
     def test_different_perplexity_values(self, algorithm, sample_clustering_data):
         """Test t-SNE with different perplexity values."""
@@ -343,7 +343,7 @@ class TestAlgorithmRegistry:
         for algo_id in supervised_algos:
             algo = registry.get_adapter(algo_id)
             assert algo is not None
-            assert algo.metadata["id"] == algo_id
+            assert algo.get_metadata().id == algo_id
 
     def test_unsupervised_algorithms_loaded(self):
         """Test unsupervised algorithms are loaded."""
@@ -359,25 +359,25 @@ class TestAlgorithmRegistry:
         for algo_id in unsupervised_algos:
             algo = registry.get_adapter(algo_id)
             assert algo is not None
-            assert algo.metadata["id"] == algo_id
+            assert algo.get_metadata().id == algo_id
 
     def test_algorithm_metadata_structure(self):
         """Test that algorithm metadata has required fields."""
         # Use global registry
         algo = registry.get_adapter("linear_regression")
 
-        metadata = algo.metadata
+        metadata = algo.get_metadata()
         required_fields = ["id", "name", "category", "description", "target", "features", "parameters"]
 
         for field in required_fields:
-            assert field in metadata, f"Missing required field: {field}"
+            assert hasattr(metadata, field), f"Missing required field: {field}"
 
     def test_algorithm_outputs_structure(self):
         """Test that algorithm outputs have required structure."""
         # Use global registry
         algo = registry.get_adapter("linear_regression")
 
-        metadata = algo.metadata
-        assert "outputs" in metadata
-        assert "metrics" in metadata["outputs"]
-        assert "visualizations" in metadata["outputs"]
+        metadata = algo.get_metadata()
+        assert hasattr(metadata, "outputs")
+        assert hasattr(metadata.outputs, "metrics")
+        assert hasattr(metadata.outputs, "charts")

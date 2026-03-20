@@ -3,6 +3,14 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from app.services.spec_registry import spec_registry
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_algorithms():
+    """Load all algorithms from YAML specs before running tests."""
+    spec_registry.auto_discover_and_register()
+    yield
 
 
 @pytest.fixture
@@ -27,7 +35,7 @@ def sample_classification_data():
     y = (X[:, 0] + X[:, 1] > 0).astype(int)
 
     df = pd.DataFrame(X, columns=['feature_1', 'feature_2', 'feature_3'])
-    df['target'] = y
+    df['target'] = y.astype(str)  # Convert to string for classification
     return df
 
 
@@ -40,7 +48,7 @@ def sample_multiclass_data():
     y = np.random.randint(0, 3, n_samples)
 
     df = pd.DataFrame(X, columns=['feature_1', 'feature_2', 'feature_3', 'feature_4'])
-    df['target'] = y
+    df['target'] = y.astype(str)  # Convert to string for classification
     return df
 
 
