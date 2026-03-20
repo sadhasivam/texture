@@ -1,0 +1,22 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: supervised-both
+  namespace: texture-system
+
+spec:
+  classification:
+    group: supervised
+    subgroup: both
+    category: both
+    learningType: supervised
+    techniqueType: versatile
+    interpretability: medium
+    performance: high
+
+  useCases:
+    primary: "Predict either continuous or categorical targets"
+    examples:
+      - "Flexible modeling for regression or classification"
+      - "Multi-purpose prediction tasks"
+      - "Adaptive learning scenarios"

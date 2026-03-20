@@ -1,0 +1,75 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: xgboost
+  displayName: XGBoost
+  namespace: supervised-learning
+  labels:
+    difficulty: advanced
+    model-family: tree
+    category: both
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-both.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: xgboost
+  description: Extreme Gradient Boosting - highly optimized gradient boosting implementation.
+  tags:
+  - ensemble
+  - boosting
+  - production-ready
+  - feature-importance
+  - handles-missing
+  - industry-standard
+  difficulty: advanced
+  modelFamily: tree
+  target:
+    required: true
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: n_estimators
+    type: int
+    default: 100
+    label: Number of boosting rounds
+  - name: learning_rate
+    type: float
+    default: 0.1
+    label: Learning rate (eta)
+  - name: max_depth
+    type: int
+    default: 6
+    label: Maximum depth of trees
+  outputs:
+    metrics:
+    - name: varies by task type
+    visualizations:
+    - name: feature_importance
+      defaultChart: bar
+      title: Feature Importance
+    tables:
+    - name: performance_summary
+      title: Performance Summary
+  validationRules:
+  - Target can be numeric, categorical, or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  handler:
+    module: app.ml.xgboost_spec
+    class: XGBoostSpecAdapter
+    interface: AlgorithmAdapter

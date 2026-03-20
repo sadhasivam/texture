@@ -1,0 +1,23 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: anomaly-detection
+  namespace: texture-system
+
+spec:
+  classification:
+    group: anomaly_detection
+    subgroup: anomaly_detection
+    category: anomaly_detection
+    learningType: unsupervised
+    techniqueType: outlier-detection
+    interpretability: medium
+    performance: medium
+
+  useCases:
+    primary: "Identify unusual patterns and outliers in data"
+    examples:
+      - "Fraud detection"
+      - "Network intrusion detection"
+      - "Manufacturing defect detection"
+      - "System health monitoring"

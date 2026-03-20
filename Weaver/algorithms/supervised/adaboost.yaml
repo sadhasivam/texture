@@ -1,0 +1,71 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: adaboost
+  displayName: AdaBoost
+  namespace: supervised-learning
+  labels:
+    difficulty: advanced
+    model-family: tree
+    category: both
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-both.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: adaboost
+  description: Adaptive Boosting - combines weak learners iteratively, focusing on
+    misclassified samples.
+  tags:
+  - ensemble
+  - boosting
+  - adaptive
+  - feature-importance
+  - iterative
+  difficulty: advanced
+  modelFamily: tree
+  target:
+    required: true
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: n_estimators
+    type: int
+    default: 50
+    label: Number of estimators
+  - name: learning_rate
+    type: float
+    default: 1.0
+    label: Learning rate
+  outputs:
+    metrics:
+    - name: varies by task type
+    visualizations:
+    - name: feature_importance
+      defaultChart: bar
+      title: Feature Importance
+    tables:
+    - name: performance_summary
+      title: Performance Summary
+  validationRules:
+  - Target can be numeric, categorical, or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  handler:
+    module: app.ml.adaboost_spec
+    class: AdaBoostSpecAdapter
+    interface: AlgorithmAdapter

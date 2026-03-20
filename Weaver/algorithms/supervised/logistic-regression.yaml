@@ -1,0 +1,67 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: logistic-regression
+  displayName: Logistic Regression
+  namespace: supervised-learning
+  labels:
+    difficulty: beginner
+    model-family: linear
+    category: classification
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-classification.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: logistic_regression
+  description: Predicts a categorical target from one or more features.
+  tags:
+  - interpretable
+  - beginner-friendly
+  - parametric
+  - probabilistic
+  - linear
+  difficulty: beginner
+  modelFamily: linear
+  target:
+    required: true
+    types:
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  outputs:
+    metrics:
+    - name: accuracy
+    - name: precision
+    - name: recall
+    - name: f1
+    visualizations:
+    - name: confusion_matrix
+      defaultChart: bar
+      title: Confusion Matrix
+    - name: class_distribution
+      defaultChart: bar
+      title: Class Distribution
+    tables:
+    - name: classification_report
+      title: Classification Report
+  validationRules:
+  - Target must be categorical or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  handler:
+    module: app.ml.logistic_regression_spec
+    class: LogisticRegressionSpecAdapter
+    interface: AlgorithmAdapter

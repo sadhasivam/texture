@@ -1,0 +1,73 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: naive-bayes
+  displayName: Naive Bayes
+  namespace: supervised-learning
+  labels:
+    difficulty: beginner
+    model-family: probabilistic
+    category: classification
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-classification.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: naive_bayes
+  description: Probabilistic classifier based on Bayes' theorem with feature independence
+    assumption.
+  tags:
+  - interpretable
+  - beginner-friendly
+  - probabilistic
+  - fast
+  - text-friendly
+  difficulty: beginner
+  modelFamily: probabilistic
+  target:
+    required: true
+    types:
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: variant
+    type: select
+    default: gaussian
+    label: Naive Bayes variant
+  outputs:
+    metrics:
+    - name: accuracy
+    - name: precision
+    - name: recall
+    - name: f1
+    visualizations:
+    - name: confusion_matrix
+      defaultChart: bar
+      title: Confusion Matrix
+    - name: class_distribution
+      defaultChart: bar
+      title: Class Distribution
+    tables:
+    - name: classification_report
+      title: Classification Report
+  validationRules:
+  - Target must be categorical or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  - Assumes features are independent (may not hold in reality)
+  handler:
+    module: app.ml.naive_bayes_spec
+    class: NaiveBayesSpecAdapter
+    interface: AlgorithmAdapter

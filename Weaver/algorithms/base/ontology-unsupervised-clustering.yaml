@@ -1,0 +1,23 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: unsupervised-clustering
+  namespace: texture-system
+
+spec:
+  classification:
+    group: unsupervised
+    subgroup: clustering
+    category: clustering
+    learningType: unsupervised
+    techniqueType: centroid-based
+    interpretability: medium
+    performance: medium
+
+  useCases:
+    primary: "Group similar data points into clusters without labels"
+    examples:
+      - "Customer segmentation"
+      - "Document clustering"
+      - "Image compression"
+      - "Anomaly detection preprocessing"

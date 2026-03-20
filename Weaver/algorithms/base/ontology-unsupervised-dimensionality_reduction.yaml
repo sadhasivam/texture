@@ -1,0 +1,23 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: unsupervised-dimensionality-reduction
+  namespace: texture-system
+
+spec:
+  classification:
+    group: unsupervised
+    subgroup: dimensionality_reduction
+    category: dimensionality_reduction
+    learningType: unsupervised
+    techniqueType: projection
+    interpretability: medium
+    performance: medium
+
+  useCases:
+    primary: "Reduce feature dimensions while preserving structure"
+    examples:
+      - "Data visualization in 2D/3D"
+      - "Feature compression"
+      - "Noise reduction"
+      - "Preprocessing for other algorithms"

@@ -1,0 +1,67 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: pca
+  displayName: PCA (Principal Component Analysis)
+  namespace: unsupervised-learning
+  labels:
+    difficulty: intermediate
+    model-family: dimensionality_reduction
+    category: dimensionality_reduction
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-unsupervised-dimensionality_reduction.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: pca
+  description: Reduces dimensionality by projecting data onto principal components
+    that capture maximum variance.
+  tags:
+  - unsupervised
+  - linear
+  - variance-preserving
+  - fast
+  - interpretable
+  difficulty: intermediate
+  modelFamily: dimensionality_reduction
+  target:
+    required: false
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 2
+    max: null
+  parameters:
+  - name: n_components
+    type: int
+    default: 2
+    label: Number of components
+  outputs:
+    metrics:
+    - name: explained_variance_ratio
+    - name: cumulative_variance
+    visualizations:
+    - name: pca_scatter
+      defaultChart: scatter
+      title: Pca Scatter
+    - name: variance_explained
+      defaultChart: bar
+      title: Variance Explained
+    tables:
+    - name: component_loadings
+      title: Component Loadings
+  validationRules:
+  - At least 2 feature columns required
+  - All features must be numeric
+  - Number of components must be less than or equal to number of features
+  handler:
+    module: app.ml.pca_spec
+    class: PCASpecAdapter
+    interface: AlgorithmAdapter

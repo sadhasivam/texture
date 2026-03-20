@@ -1,0 +1,69 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: tsne
+  displayName: t-SNE
+  namespace: unsupervised-learning
+  labels:
+    difficulty: advanced
+    model-family: dimensionality_reduction
+    category: dimensionality_reduction
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-unsupervised-dimensionality_reduction.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: tsne
+  description: Non-linear dimensionality reduction optimized for visualization by
+    preserving local structure.
+  tags:
+  - unsupervised
+  - non-linear
+  - visualization
+  - manifold-learning
+  - slow
+  difficulty: advanced
+  modelFamily: dimensionality_reduction
+  target:
+    required: false
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 2
+    max: null
+  parameters:
+  - name: n_components
+    type: int
+    default: 2
+    label: Number of dimensions
+  - name: perplexity
+    type: float
+    default: 30.0
+    label: Perplexity
+  - name: learning_rate
+    type: float
+    default: 200.0
+    label: Learning rate
+  outputs:
+    metrics:
+    - name: kl_divergence
+    visualizations:
+    - name: tsne_scatter
+      defaultChart: scatter
+      title: Tsne Scatter
+    tables: []
+  validationRules:
+  - At least 2 feature columns required
+  - All features must be numeric
+  - Perplexity must be less than number of samples
+  handler:
+    module: app.ml.tsne_spec
+    class: TSNESpecAdapter
+    interface: AlgorithmAdapter

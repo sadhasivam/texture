@@ -1,0 +1,71 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: isolation-forest
+  displayName: Isolation Forest
+  namespace: unsupervised-learning
+  labels:
+    difficulty: intermediate
+    model-family: isolation
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: isolation_forest
+  description: Detects anomalies by isolating observations through random partitioning.
+  tags:
+  - unsupervised
+  - anomaly-detection
+  - ensemble
+  - isolation-based
+  - outlier-detection
+  difficulty: intermediate
+  modelFamily: isolation
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: contamination
+    type: float
+    default: 0.1
+    label: Expected proportion of anomalies
+  - name: n_estimators
+    type: int
+    default: 100
+    label: Number of trees
+  - name: max_samples
+    type: int
+    default: 256
+    label: Samples per tree
+  outputs:
+    metrics:
+    - name: n_anomalies
+    - name: anomaly_percentage
+    visualizations:
+    - name: anomaly_scatter
+      defaultChart: scatter
+      title: Anomaly Scatter
+    - name: anomaly_score_distribution
+      defaultChart: bar
+      title: Anomaly Score Distribution
+    tables:
+    - name: anomaly_summary
+      title: Anomaly Summary
+  validationRules:
+  - At least 1 feature column required
+  - All features must be numeric
+  - Contamination must be between 0 and 0.5
+  handler:
+    module: app.ml.isolation_forest_spec
+    class: IsolationForestSpecAdapter
+    interface: AlgorithmAdapter

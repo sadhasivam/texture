@@ -1,0 +1,23 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: supervised-classification
+  namespace: texture-system
+
+spec:
+  classification:
+    group: supervised
+    subgroup: classification
+    category: classification
+    learningType: supervised
+    techniqueType: discriminative
+    interpretability: medium
+    performance: medium
+
+  useCases:
+    primary: "Predict categorical class labels from features"
+    examples:
+      - "Email spam detection"
+      - "Disease diagnosis"
+      - "Customer churn prediction"
+      - "Sentiment analysis"

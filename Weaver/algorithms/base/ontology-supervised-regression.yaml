@@ -1,0 +1,23 @@
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: supervised-regression
+  namespace: texture-system
+
+spec:
+  classification:
+    group: supervised
+    subgroup: regression
+    category: regression
+    learningType: supervised
+    techniqueType: parametric
+    interpretability: high
+    performance: medium
+
+  useCases:
+    primary: "Predict continuous numeric values from features"
+    examples:
+      - "House price prediction"
+      - "Sales forecasting"
+      - "Temperature prediction"
+      - "Stock price estimation"

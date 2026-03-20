@@ -1,7 +1,7 @@
 import uuid
 
 from app.schemas.run import RunRequest, RunResponse, RunSummary
-from app.services.algorithm_registry import registry
+from app.services.spec_registry import spec_registry as registry
 from app.services.dataset_service import dataset_service
 
 

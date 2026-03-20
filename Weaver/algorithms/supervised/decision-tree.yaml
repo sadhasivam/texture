@@ -1,0 +1,66 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: decision-tree
+  displayName: Decision Tree
+  namespace: supervised-learning
+  labels:
+    difficulty: beginner
+    model-family: tree
+    category: both
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-both.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: decision_tree
+  description: Builds a tree-based model for regression or classification.
+  tags:
+  - interpretable
+  - beginner-friendly
+  - non-parametric
+  - visual
+  - feature-importance
+  difficulty: beginner
+  modelFamily: tree
+  target:
+    required: true
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: max_depth
+    type: int
+    default: 5
+    label: Maximum depth
+  outputs:
+    metrics:
+    - name: varies by task type
+    visualizations:
+    - name: feature_importance
+      defaultChart: bar
+      title: Feature Importance
+    tables:
+    - name: performance_summary
+      title: Performance Summary
+  validationRules:
+  - Target can be numeric, categorical, or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  handler:
+    module: app.ml.decision_tree_spec
+    class: DecisionTreeSpecAdapter
+    interface: AlgorithmAdapter

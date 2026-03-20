@@ -1,0 +1,72 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: knn
+  displayName: K-Nearest Neighbors
+  namespace: supervised-learning
+  labels:
+    difficulty: intermediate
+    model-family: instance
+    category: both
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-both.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: knn
+  description: Classifies or predicts based on the k closest data points in feature
+    space.
+  tags:
+  - instance-based
+  - non-parametric
+  - simple
+  - lazy-learning
+  - distance-based
+  difficulty: intermediate
+  modelFamily: instance
+  target:
+    required: true
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: n_neighbors
+    type: int
+    default: 5
+    label: Number of neighbors (k)
+  - name: weights
+    type: select
+    default: uniform
+    label: Weight function
+  outputs:
+    metrics:
+    - name: varies by task type
+    visualizations:
+    - name: varies by task type
+      defaultChart: bar
+      title: Varies By Task Type
+    tables:
+    - name: performance_summary
+      title: Performance Summary
+  validationRules:
+  - Target can be numeric, categorical, or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  - Features are automatically scaled for KNN
+  handler:
+    module: app.ml.knn_spec
+    class: KNNSpecAdapter
+    interface: AlgorithmAdapter

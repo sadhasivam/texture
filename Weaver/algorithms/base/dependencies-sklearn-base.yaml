@@ -1,0 +1,15 @@
+apiVersion: texture.ml/v1
+kind: Dependencies
+metadata:
+  name: sklearn-base
+  namespace: texture-system
+
+spec:
+  runtime: python
+  packages:
+    - name: scikit-learn
+      version: ">=1.0.0"
+    - name: numpy
+      version: ">=1.21.0"
+    - name: pandas
+      version: ">=1.3.0"

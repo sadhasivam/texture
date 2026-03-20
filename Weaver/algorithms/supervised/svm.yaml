@@ -1,0 +1,72 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: svm
+  displayName: Support Vector Machine
+  namespace: supervised-learning
+  labels:
+    difficulty: advanced
+    model-family: kernel
+    category: both
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-supervised-both.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: svm
+  description: Finds optimal hyperplane to separate classes or predict continuous
+    values.
+  tags:
+  - kernel-methods
+  - margin-based
+  - powerful
+  - scaled-features
+  - optimization
+  difficulty: advanced
+  modelFamily: kernel
+  target:
+    required: true
+    types:
+    - numeric
+    - categorical
+    - boolean
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: test_size
+    type: float
+    default: 0.2
+    label: Test size
+  - name: kernel
+    type: select
+    default: rbf
+    label: Kernel type
+  - name: C
+    type: float
+    default: 1.0
+    label: Regularization parameter (C)
+  outputs:
+    metrics:
+    - name: varies by task type
+    visualizations:
+    - name: varies by task type
+      defaultChart: bar
+      title: Varies By Task Type
+    tables:
+    - name: performance_summary
+      title: Performance Summary
+  validationRules:
+  - Target can be numeric, categorical, or boolean
+  - At least one feature column is required
+  - All features must be numeric
+  - Features are automatically scaled for SVM
+  handler:
+    module: app.ml.svm_spec
+    class: SVMSpecAdapter
+    interface: AlgorithmAdapter

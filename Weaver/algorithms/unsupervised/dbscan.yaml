@@ -1,0 +1,65 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: dbscan
+  displayName: DBSCAN
+  namespace: unsupervised-learning
+  labels:
+    difficulty: intermediate
+    model-family: clustering
+    category: clustering
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-unsupervised-clustering.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: dbscan
+  description: Density-based clustering that finds clusters of arbitrary shape and
+    identifies outliers.
+  tags:
+  - unsupervised
+  - density-based
+  - noise-detection
+  - arbitrary-shapes
+  - parameter-sensitive
+  difficulty: intermediate
+  modelFamily: clustering
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 2
+    max: null
+  parameters:
+  - name: eps
+    type: float
+    default: 0.5
+    label: Epsilon (neighborhood radius)
+  - name: min_samples
+    type: int
+    default: 5
+    label: Minimum samples in neighborhood
+  outputs:
+    metrics:
+    - name: n_clusters
+    - name: n_noise
+    - name: silhouette_score
+    visualizations:
+    - name: cluster_scatter
+      defaultChart: scatter
+      title: Cluster Scatter
+    tables:
+    - name: cluster_summary
+      title: Cluster Summary
+  validationRules:
+  - At least 2 feature columns required
+  - All features must be numeric
+  handler:
+    module: app.ml.dbscan_spec
+    class: DBSCANSpecAdapter
+    interface: AlgorithmAdapter

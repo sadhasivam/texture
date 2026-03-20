@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.algorithm import AlgorithmMetadata, AlgorithmSummary
-from app.services.algorithm_registry import registry
+from app.services.spec_registry import spec_registry as registry
 
 router = APIRouter()
 
