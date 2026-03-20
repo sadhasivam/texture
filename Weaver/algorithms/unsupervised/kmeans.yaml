@@ -88,6 +88,6 @@ spec:
   - All features must be numeric
   - Number of clusters must be less than number of samples
   handler:
-    module: app.ml.kmeans_spec
-    class: KMeansSpecAdapter
+    module: app.ml.unsupervised.kmeans
+    class: KMeansAdapter
     interface: AlgorithmAdapter

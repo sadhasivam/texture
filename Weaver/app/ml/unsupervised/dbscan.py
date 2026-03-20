@@ -1,70 +1,15 @@
-"""DBSCAN (Density-Based Spatial Clustering) algorithm adapter."""
-
+"""Spec-driven DBSCAN - minimal boilerplate."""
 import pandas as pd
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.metrics import silhouette_score
 
-from app.ml.base import AlgorithmAdapter
-from app.schemas.algorithm import (
-    AlgorithmFeatures,
-    AlgorithmMetadata,
-    AlgorithmOutputs,
-    AlgorithmParameter,
-    AlgorithmTarget,
-)
+from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class DBSCANAdapter(AlgorithmAdapter):
-    id = "dbscan"
-    name = "DBSCAN"
-    category = "clustering"
+class DBSCANAdapter(SpecDrivenAdapter):
+    """"DBSCAN using YAML spec for metadata."""
 
-    def get_metadata(self) -> AlgorithmMetadata:
-        return AlgorithmMetadata(
-            id=self.id,
-            name=self.name,
-            category=self.category,
-            group="unsupervised",
-            subgroup="clustering",
-            description="Density-based clustering that finds clusters of arbitrary shape and identifies outliers.",
-            tags=["unsupervised", "density-based", "noise-detection", "arbitrary-shapes", "parameter-sensitive"],
-            difficulty="intermediate",
-            model_family="clustering",
-            target=AlgorithmTarget(
-                required=False,
-                allowed_types=[],
-                cardinality="single",
-            ),
-            features=AlgorithmFeatures(
-                required=True,
-                min_columns=2,
-                max_columns=None,
-                allowed_types=["numeric"],
-            ),
-            parameters=[
-                AlgorithmParameter(
-                    name="eps",
-                    type="float",
-                    default=0.5,
-                    label="Epsilon (neighborhood radius)",
-                ),
-                AlgorithmParameter(
-                    name="min_samples",
-                    type="int",
-                    default=5,
-                    label="Minimum samples in neighborhood",
-                ),
-            ],
-            outputs=AlgorithmOutputs(
-                metrics=["n_clusters", "n_noise", "silhouette_score"],
-                charts=["cluster_scatter"],
-                tables=["cluster_summary"],
-            ),
-            validation_rules=[
-                "At least 2 feature columns required",
-                "All features must be numeric",
-            ],
-        )
+    spec_path = "unsupervised/dbscan.yaml"
 
     def run(
         self,
@@ -192,3 +137,4 @@ class DBSCANAdapter(AlgorithmAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
+

@@ -1,64 +1,14 @@
-"""PCA (Principal Component Analysis) algorithm adapter."""
-
+"""Spec-driven PCA (Principal Component Analysis) - minimal boilerplate."""
 import pandas as pd
 from sklearn.decomposition import PCA as SklearnPCA
 
-from app.ml.base import AlgorithmAdapter
-from app.schemas.algorithm import (
-    AlgorithmFeatures,
-    AlgorithmMetadata,
-    AlgorithmOutputs,
-    AlgorithmParameter,
-    AlgorithmTarget,
-)
+from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class PCAAdapter(AlgorithmAdapter):
-    id = "pca"
-    name = "PCA (Principal Component Analysis)"
-    category = "dimensionality_reduction"
+class PCAAdapter(SpecDrivenAdapter):
+    """"PCA (Principal Component Analysis) using YAML spec for metadata."""
 
-    def get_metadata(self) -> AlgorithmMetadata:
-        return AlgorithmMetadata(
-            id=self.id,
-            name=self.name,
-            category=self.category,
-            group="unsupervised",
-            subgroup="dimensionality_reduction",
-            description="Reduces dimensionality by projecting data onto principal components that capture maximum variance.",
-            tags=["unsupervised", "linear", "variance-preserving", "fast", "interpretable"],
-            difficulty="intermediate",
-            model_family="dimensionality_reduction",
-            target=AlgorithmTarget(
-                required=False,  # Can optionally use target for coloring
-                allowed_types=["numeric", "categorical", "boolean"],
-                cardinality="single",
-            ),
-            features=AlgorithmFeatures(
-                required=True,
-                min_columns=2,
-                max_columns=None,
-                allowed_types=["numeric"],
-            ),
-            parameters=[
-                AlgorithmParameter(
-                    name="n_components",
-                    type="int",
-                    default=2,
-                    label="Number of components",
-                ),
-            ],
-            outputs=AlgorithmOutputs(
-                metrics=["explained_variance_ratio", "cumulative_variance"],
-                charts=["pca_scatter", "variance_explained"],
-                tables=["component_loadings"],
-            ),
-            validation_rules=[
-                "At least 2 feature columns required",
-                "All features must be numeric",
-                "Number of components must be less than or equal to number of features",
-            ],
-        )
+    spec_path = "unsupervised/pca.yaml"
 
     def run(
         self,
@@ -187,3 +137,4 @@ class PCAAdapter(AlgorithmAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
+

@@ -1,77 +1,15 @@
-"""K-Means Clustering algorithm adapter."""
-
+"""Spec-driven K-Means Clustering - minimal boilerplate."""
 import pandas as pd
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.metrics import silhouette_score
 
-from app.ml.base import AlgorithmAdapter
-from app.schemas.algorithm import (
-    AlgorithmFeatures,
-    AlgorithmMetadata,
-    AlgorithmOutputs,
-    AlgorithmParameter,
-    AlgorithmTarget,
-)
+from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class KMeansAdapter(AlgorithmAdapter):
-    id = "kmeans"
-    name = "K-Means Clustering"
-    category = "clustering"
+class KMeansAdapter(SpecDrivenAdapter):
+    """"K-Means Clustering using YAML spec for metadata."""
 
-    def get_metadata(self) -> AlgorithmMetadata:
-        return AlgorithmMetadata(
-            id=self.id,
-            name=self.name,
-            category=self.category,
-            group="unsupervised",
-            subgroup="clustering",
-            description="Partitions data into K distinct clusters based on feature similarity.",
-            tags=["unsupervised", "fast", "simple", "centroid-based", "beginner-friendly"],
-            difficulty="beginner",
-            model_family="clustering",
-            target=AlgorithmTarget(
-                required=False,  # Unsupervised - no target needed!
-                allowed_types=[],
-                cardinality="single",
-            ),
-            features=AlgorithmFeatures(
-                required=True,
-                min_columns=2,
-                max_columns=None,
-                allowed_types=["numeric"],
-            ),
-            parameters=[
-                AlgorithmParameter(
-                    name="n_clusters",
-                    type="int",
-                    default=3,
-                    label="Number of clusters (K)",
-                ),
-                AlgorithmParameter(
-                    name="max_iter",
-                    type="int",
-                    default=300,
-                    label="Maximum iterations",
-                ),
-                AlgorithmParameter(
-                    name="random_state",
-                    type="int",
-                    default=42,
-                    label="Random seed",
-                ),
-            ],
-            outputs=AlgorithmOutputs(
-                metrics=["inertia", "silhouette_score"],
-                charts=["cluster_scatter", "elbow_curve"],
-                tables=["cluster_summary"],
-            ),
-            validation_rules=[
-                "At least 2 feature columns required",
-                "All features must be numeric",
-                "Number of clusters must be less than number of samples",
-            ],
-        )
+    spec_path = "unsupervised/kmeans.yaml"
 
     def run(
         self,
@@ -192,3 +130,4 @@ class KMeansAdapter(AlgorithmAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
+

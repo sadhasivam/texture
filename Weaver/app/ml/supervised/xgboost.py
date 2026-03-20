@@ -1,17 +1,17 @@
-"""Spec-driven Decision Tree - minimal boilerplate."""
+"""Spec-driven XGBoost - minimal boilerplate."""
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from xgboost import XGBClassifier, XGBRegressor
 
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class DecisionTreeSpecAdapter(SpecDrivenAdapter):
-    """"Decision Tree using YAML spec for metadata."""
+class XGBoostAdapter(SpecDrivenAdapter):
+    """"XGBoost using YAML spec for metadata."""
 
-    spec_path = "supervised/decision-tree.yaml"
+    spec_path = "supervised/xgboost.yaml"
 
     def run(
         self,
@@ -21,7 +21,9 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
         parameters: dict,
     ) -> dict:
         test_size = parameters.get("test_size", 0.2)
-        max_depth = parameters.get("max_depth", 5)
+        n_estimators = parameters.get("n_estimators", 100)
+        learning_rate = parameters.get("learning_rate", 0.1)
+        max_depth = parameters.get("max_depth", 6)
 
         # Prepare data
         X = dataframe[features]
@@ -32,7 +34,7 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
         X = X[valid_mask]
         y = y[valid_mask]
 
-        # Determine if this is regression or classification
+        # Determine if regression or classification
         is_regression = pd.api.types.is_numeric_dtype(y)
 
         # Split data
@@ -40,20 +42,32 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=42
             )
-            model = DecisionTreeRegressor(max_depth=max_depth, random_state=42)
+            model = XGBRegressor(
+                n_estimators=n_estimators,
+                learning_rate=learning_rate,
+                max_depth=max_depth,
+                random_state=42,
+                verbosity=0,
+            )
         else:
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=42, stratify=y
             )
-            model = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
+            model = XGBClassifier(
+                n_estimators=n_estimators,
+                learning_rate=learning_rate,
+                max_depth=max_depth,
+                random_state=42,
+                verbosity=0,
+            )
 
-        # Train model
+        # Train
         model.fit(X_train, y_train)
 
-        # Make predictions
+        # Predict
         y_pred = model.predict(X_test)
 
-        # Feature importance chart
+        # Feature importance
         importance_data = [
             {"feature": feature, "importance": float(importance)}
             for feature, importance in zip(features, model.feature_importances_)
@@ -73,7 +87,7 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
                 "rmse": float(rmse),
             }
 
-            # Predicted vs actual chart
+            # Predicted vs actual
             predicted_vs_actual_data = [
                 {"actual": float(actual), "predicted": float(pred)}
                 for actual, pred in zip(y_test, y_pred)
@@ -93,9 +107,9 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model explains about {r2*100:.1f}% of the variation in the target.",
-                f"On average, predictions are off by {mae:.2f} units (MAE).",
-                "Decision trees split the data based on feature values to minimize error.",
+                f"XGBoost trained {n_estimators} trees using gradient boosting.",
+                f"The model explains {r2*100:.1f}% of the variation in the target.",
+                "XGBoost is highly optimized and often outperforms other algorithms.",
             ]
 
             tables = [{"type": "performance_summary", "rows": []}]
@@ -137,9 +151,9 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
-                "Decision trees split the data based on feature values to maximize class purity.",
-                f"The tree has a maximum depth of {max_depth} levels.",
+                f"XGBoost achieved {accuracy*100:.1f}% accuracy on the test set.",
+                "XGBoost handles imbalanced data and missing values well.",
+                "Often used in Kaggle competitions due to high performance.",
             ]
 
             tables = [{"type": "performance_summary", "rows": []}]
@@ -157,6 +171,7 @@ class DecisionTreeSpecAdapter(SpecDrivenAdapter):
                 "feature_columns": features,
                 "train_rows": len(X_train),
                 "test_rows": len(X_test),
+                "n_estimators": n_estimators,
             },
             "metrics": metrics,
             "charts": charts,

@@ -1,17 +1,17 @@
-"""Spec-driven Random Forest - minimal boilerplate."""
+"""Spec-driven AdaBoost - minimal boilerplate."""
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor
 from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
 from sklearn.model_selection import train_test_split
 
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class RandomForestSpecAdapter(SpecDrivenAdapter):
-    """"Random Forest using YAML spec for metadata."""
+class AdaBoostAdapter(SpecDrivenAdapter):
+    """"AdaBoost using YAML spec for metadata."""
 
-    spec_path = "supervised/random-forest.yaml"
+    spec_path = "supervised/adaboost.yaml"
 
     def run(
         self,
@@ -21,7 +21,8 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
         parameters: dict,
     ) -> dict:
         test_size = parameters.get("test_size", 0.2)
-        n_estimators = parameters.get("n_estimators", 100)
+        n_estimators = parameters.get("n_estimators", 50)
+        learning_rate = parameters.get("learning_rate", 1.0)
 
         # Prepare data
         X = dataframe[features]
@@ -32,7 +33,7 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
         X = X[valid_mask]
         y = y[valid_mask]
 
-        # Determine if this is regression or classification
+        # Determine if regression or classification
         is_regression = pd.api.types.is_numeric_dtype(y)
 
         # Split data
@@ -40,24 +41,28 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=42
             )
-            model = RandomForestRegressor(
-                n_estimators=n_estimators, random_state=42, n_jobs=-1
+            model = AdaBoostRegressor(
+                n_estimators=n_estimators,
+                learning_rate=learning_rate,
+                random_state=42,
             )
         else:
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=42, stratify=y
             )
-            model = RandomForestClassifier(
-                n_estimators=n_estimators, random_state=42, n_jobs=-1
+            model = AdaBoostClassifier(
+                n_estimators=n_estimators,
+                learning_rate=learning_rate,
+                random_state=42,
             )
 
-        # Train model
+        # Train
         model.fit(X_train, y_train)
 
-        # Make predictions
+        # Predict
         y_pred = model.predict(X_test)
 
-        # Feature importance chart
+        # Feature importance
         importance_data = [
             {"feature": feature, "importance": float(importance)}
             for feature, importance in zip(features, model.feature_importances_)
@@ -77,7 +82,7 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
                 "rmse": float(rmse),
             }
 
-            # Predicted vs actual chart
+            # Predicted vs actual
             predicted_vs_actual_data = [
                 {"actual": float(actual), "predicted": float(pred)}
                 for actual, pred in zip(y_test, y_pred)
@@ -97,9 +102,9 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model explains about {r2*100:.1f}% of the variation in the target.",
-                f"On average, predictions are off by {mae:.2f} units (MAE).",
-                f"Random Forest combines {n_estimators} decision trees to reduce overfitting.",
+                f"AdaBoost combined {n_estimators} weak learners into a strong predictor.",
+                f"The ensemble explains {r2*100:.1f}% of the variation in the target.",
+                "Each subsequent learner focuses more on previously misclassified samples.",
             ]
 
             tables = [{"type": "performance_summary", "rows": []}]
@@ -120,19 +125,12 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
                 "f1": float(f1),
             }
 
-            # Build confusion matrix data
-            classes = sorted(y.unique())
-            confusion_matrix_data = []
-            for true_class in classes:
-                for pred_class in classes:
-                    count = ((y_test == true_class) & (y_pred == pred_class)).sum()
-                    confusion_matrix_data.append(
-                        {
-                            "true": str(true_class),
-                            "predicted": str(pred_class),
-                            "count": int(count),
-                        }
-                    )
+            # Class distribution
+            class_dist = y.value_counts()
+            class_distribution_data = [
+                {"class": str(cls), "count": int(count)}
+                for cls, count in class_dist.items()
+            ]
 
             charts = [
                 {
@@ -141,16 +139,16 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
                     "data": importance_data,
                 },
                 {
-                    "type": "confusion_matrix",
-                    "title": "Confusion Matrix",
-                    "data": confusion_matrix_data,
+                    "type": "class_distribution",
+                    "title": "Class Distribution",
+                    "data": class_distribution_data,
                 },
             ]
 
             explanations = [
-                f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
-                f"Random Forest combines {n_estimators} decision trees to improve robustness.",
-                "Each tree votes on the final prediction, reducing variance.",
+                f"AdaBoost achieved {accuracy*100:.1f}% accuracy using {n_estimators} weak learners.",
+                "AdaBoost adaptively weights training samples based on previous errors.",
+                "Works well when weak learners are slightly better than random guessing.",
             ]
 
             tables = [{"type": "performance_summary", "rows": []}]
@@ -168,6 +166,7 @@ class RandomForestSpecAdapter(SpecDrivenAdapter):
                 "feature_columns": features,
                 "train_rows": len(X_train),
                 "test_rows": len(X_test),
+                "n_estimators": n_estimators,
             },
             "metrics": metrics,
             "charts": charts,

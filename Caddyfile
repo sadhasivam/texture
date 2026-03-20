@@ -20,7 +20,7 @@
 
 	# Serve static files with SPA fallback
 	route {
-		root * /root/texture/Kolam/dist
+		root * /Users/sadhasivam/Jawn/Code/texture/Kolam/dist
 		try_files {path} /index.html
 		file_server
 	}

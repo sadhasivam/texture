@@ -67,6 +67,6 @@ spec:
   - All features must be numeric
   - Features are automatically scaled for SVM
   handler:
-    module: app.ml.svm_spec
-    class: SVMSpecAdapter
+    module: app.ml.supervised.svm
+    class: SVMAdapter
     interface: AlgorithmAdapter

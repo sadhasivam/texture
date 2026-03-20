@@ -62,6 +62,6 @@ spec:
   - All features must be numeric
   - Number of components must be less than or equal to number of features
   handler:
-    module: app.ml.pca_spec
-    class: PCASpecAdapter
+    module: app.ml.unsupervised.pca
+    class: PCAAdapter
     interface: AlgorithmAdapter

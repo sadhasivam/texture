@@ -5,7 +5,7 @@ from sklearn.manifold import TSNE as SklearnTSNE
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class TSNESpecAdapter(SpecDrivenAdapter):
+class TSNEAdapter(SpecDrivenAdapter):
     """"t-SNE using YAML spec for metadata."""
 
     spec_path = "unsupervised/tsne.yaml"

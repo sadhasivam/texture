@@ -60,6 +60,6 @@ spec:
   - At least 2 feature columns required
   - All features must be numeric
   handler:
-    module: app.ml.dbscan_spec
-    class: DBSCANSpecAdapter
+    module: app.ml.unsupervised.dbscan
+    class: DBSCANAdapter
     interface: AlgorithmAdapter

@@ -66,6 +66,6 @@ spec:
   - At least one feature column is required
   - All features must be numeric
   handler:
-    module: app.ml.adaboost_spec
-    class: AdaBoostSpecAdapter
+    module: app.ml.supervised.adaboost
+    class: AdaBoostAdapter
     interface: AlgorithmAdapter

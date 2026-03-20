@@ -64,6 +64,6 @@ spec:
   - All features must be numeric
   - Perplexity must be less than number of samples
   handler:
-    module: app.ml.tsne_spec
-    class: TSNESpecAdapter
+    module: app.ml.unsupervised.tsne
+    class: TSNEAdapter
     interface: AlgorithmAdapter

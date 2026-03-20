@@ -62,6 +62,6 @@ spec:
   - At least one feature column is required
   - All features must be numeric
   handler:
-    module: app.ml.logistic_regression_spec
-    class: LogisticRegressionSpecAdapter
+    module: app.ml.supervised.logistic_regression
+    class: LogisticRegressionAdapter
     interface: AlgorithmAdapter

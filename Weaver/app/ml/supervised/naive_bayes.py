@@ -1,64 +1,16 @@
+"""Spec-driven Naive Bayes - minimal boilerplate."""
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import BernoulliNB, GaussianNB, MultinomialNB
 
-from app.ml.base import AlgorithmAdapter
-from app.schemas.algorithm import (
-    AlgorithmFeatures,
-    AlgorithmMetadata,
-    AlgorithmOutputs,
-    AlgorithmParameter,
-    AlgorithmTarget,
-)
+from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class LogisticRegressionAdapter(AlgorithmAdapter):
-    id = "logistic_regression"
-    name = "Logistic Regression"
-    category = "classification"
+class NaiveBayesAdapter(SpecDrivenAdapter):
+    """"Naive Bayes using YAML spec for metadata."""
 
-    def get_metadata(self) -> AlgorithmMetadata:
-        return AlgorithmMetadata(
-            id=self.id,
-            name=self.name,
-            category=self.category,
-            group="supervised",
-            subgroup="classification",
-            description="Predicts a categorical target from one or more features.",
-            tags=["interpretable", "beginner-friendly", "parametric", "probabilistic", "linear"],
-            difficulty="beginner",
-            model_family="linear",
-            target=AlgorithmTarget(
-                required=True,
-                allowed_types=["categorical", "boolean"],
-                cardinality="single",
-            ),
-            features=AlgorithmFeatures(
-                required=True,
-                min_columns=1,
-                max_columns=None,
-                allowed_types=["numeric"],
-            ),
-            parameters=[
-                AlgorithmParameter(
-                    name="test_size",
-                    type="float",
-                    default=0.2,
-                    label="Test size",
-                )
-            ],
-            outputs=AlgorithmOutputs(
-                metrics=["accuracy", "precision", "recall", "f1"],
-                charts=["confusion_matrix", "class_distribution"],
-                tables=["classification_report"],
-            ),
-            validation_rules=[
-                "Target must be categorical or boolean",
-                "At least one feature column is required",
-                "All features must be numeric",
-            ],
-        )
+    spec_path = "supervised/naive-bayes.yaml"
 
     def run(
         self,
@@ -68,6 +20,7 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
         parameters: dict,
     ) -> dict:
         test_size = parameters.get("test_size", 0.2)
+        variant = parameters.get("variant", "gaussian")
 
         # Prepare data
         X = dataframe[features]
@@ -83,18 +36,49 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
             X, y, test_size=test_size, random_state=42, stratify=y
         )
 
+        # Select Naive Bayes variant
+        if variant == "gaussian":
+            model = GaussianNB()
+            variant_desc = "Gaussian (assumes features follow normal distribution)"
+        elif variant == "multinomial":
+            # Ensure non-negative values for multinomial
+            if (X_train < 0).any().any() or (X_test < 0).any().any():
+                # Shift to make all values non-negative
+                min_val = min(X_train.min().min(), X_test.min().min())
+                if min_val < 0:
+                    X_train = X_train - min_val
+                    X_test = X_test - min_val
+            model = MultinomialNB()
+            variant_desc = "Multinomial (for count/frequency data)"
+        else:  # bernoulli
+            model = BernoulliNB()
+            variant_desc = "Bernoulli (for binary features)"
+
         # Train model
-        model = LogisticRegression(max_iter=1000, random_state=42)
         model.fit(X_train, y_train)
 
         # Make predictions
         y_pred = model.predict(X_test)
+
+        # Get class probabilities if available
+        try:
+            y_proba = model.predict_proba(X_test)
+            has_proba = True
+        except Exception:
+            has_proba = False
 
         # Calculate metrics
         accuracy = accuracy_score(y_test, y_pred)
         precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
         recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
         f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
+
+        metrics = {
+            "accuracy": float(accuracy),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1": float(f1),
+        }
 
         # Build confusion matrix data
         classes = sorted(y.unique())
@@ -147,22 +131,31 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
         explanations = [
             f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
             f"Overall F1-score is {f1:.3f}, balancing precision and recall.",
+            f"Variant: {variant_desc}",
+            "Naive Bayes assumes features are independent given the class (may not be realistic).",
         ]
 
         if len(classes) == 2:
-            explanations.append(
-                "This is a binary classification problem with two target classes."
-            )
+            explanations.append("This is a binary classification problem with two target classes.")
         else:
             explanations.append(
                 f"This is a multi-class classification problem with {len(classes)} target classes."
             )
 
+        if has_proba:
+            avg_confidence = y_proba.max(axis=1).mean()
+            explanations.append(
+                f"Average prediction confidence: {avg_confidence*100:.1f}%"
+            )
+
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
+
+        if variant == "multinomial" and (X < 0).any().any():
             warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
+                "Features were shifted to non-negative values for Multinomial Naive Bayes."
             )
 
         return {
@@ -172,12 +165,7 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
                 "train_rows": len(X_train),
                 "test_rows": len(X_test),
             },
-            "metrics": {
-                "accuracy": float(accuracy),
-                "precision": float(precision),
-                "recall": float(recall),
-                "f1": float(f1),
-            },
+            "metrics": metrics,
             "charts": [
                 {
                     "type": "confusion_matrix",
@@ -199,3 +187,4 @@ class LogisticRegressionAdapter(AlgorithmAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
+

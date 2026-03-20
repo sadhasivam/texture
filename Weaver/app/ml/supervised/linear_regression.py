@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class LinearRegressionSpecAdapter(SpecDrivenAdapter):
+class LinearRegressionAdapter(SpecDrivenAdapter):
     """"Linear Regression using YAML spec for metadata."""
 
     spec_path = "supervised/linear-regression.yaml"

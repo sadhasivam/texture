@@ -70,6 +70,6 @@ spec:
   - At least one feature column is required
   - All features must be numeric
   handler:
-    module: app.ml.xgboost_spec
-    class: XGBoostSpecAdapter
+    module: app.ml.supervised.xgboost
+    class: XGBoostAdapter
     interface: AlgorithmAdapter

@@ -68,6 +68,6 @@ spec:
   - All features must be numeric
   - Assumes features are independent (may not hold in reality)
   handler:
-    module: app.ml.naive_bayes_spec
-    class: NaiveBayesSpecAdapter
+    module: app.ml.supervised.naive_bayes
+    class: NaiveBayesAdapter
     interface: AlgorithmAdapter

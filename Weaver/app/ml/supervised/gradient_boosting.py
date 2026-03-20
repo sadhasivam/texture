@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class GradientBoostingSpecAdapter(SpecDrivenAdapter):
+class GradientBoostingAdapter(SpecDrivenAdapter):
     """"Gradient Boosting using YAML spec for metadata."""
 
     spec_path = "supervised/gradient-boosting.yaml"

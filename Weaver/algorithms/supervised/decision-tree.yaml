@@ -61,6 +61,6 @@ spec:
   - At least one feature column is required
   - All features must be numeric
   handler:
-    module: app.ml.decision_tree_spec
-    class: DecisionTreeSpecAdapter
+    module: app.ml.supervised.decision_tree
+    class: DecisionTreeAdapter
     interface: AlgorithmAdapter

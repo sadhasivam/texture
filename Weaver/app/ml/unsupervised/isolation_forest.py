@@ -5,7 +5,7 @@ from sklearn.ensemble import IsolationForest as SklearnIsolationForest
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class IsolationForestSpecAdapter(SpecDrivenAdapter):
+class IsolationForestAdapter(SpecDrivenAdapter):
     """"Isolation Forest using YAML spec for metadata."""
 
     spec_path = "unsupervised/isolation-forest.yaml"

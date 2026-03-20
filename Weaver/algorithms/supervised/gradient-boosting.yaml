@@ -70,6 +70,6 @@ spec:
   - At least one feature column is required
   - All features must be numeric
   handler:
-    module: app.ml.gradient_boosting_spec
-    class: GradientBoostingSpecAdapter
+    module: app.ml.supervised.gradient_boosting
+    class: GradientBoostingAdapter
     interface: AlgorithmAdapter

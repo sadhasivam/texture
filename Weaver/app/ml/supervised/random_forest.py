@@ -1,79 +1,17 @@
+"""Spec-driven Random Forest - minimal boilerplate."""
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    mean_absolute_error,
-    mean_squared_error,
-    precision_score,
-    r2_score,
-    recall_score,
-)
+from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
 from sklearn.model_selection import train_test_split
 
-from app.ml.base import AlgorithmAdapter
-from app.schemas.algorithm import (
-    AlgorithmFeatures,
-    AlgorithmMetadata,
-    AlgorithmOutputs,
-    AlgorithmParameter,
-    AlgorithmTarget,
-)
+from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class RandomForestAdapter(AlgorithmAdapter):
-    id = "random_forest"
-    name = "Random Forest"
-    category = "both"
+class RandomForestAdapter(SpecDrivenAdapter):
+    """"Random Forest using YAML spec for metadata."""
 
-    def get_metadata(self) -> AlgorithmMetadata:
-        return AlgorithmMetadata(
-            id=self.id,
-            name=self.name,
-            category=self.category,
-            group="supervised",
-            subgroup="both",
-            description="Builds an ensemble of decision trees for robust predictions.",
-            tags=["ensemble", "bagging", "robust", "feature-importance", "handles-missing"],
-            difficulty="intermediate",
-            model_family="tree",
-            target=AlgorithmTarget(
-                required=True,
-                allowed_types=["numeric", "categorical", "boolean"],
-                cardinality="single",
-            ),
-            features=AlgorithmFeatures(
-                required=True,
-                min_columns=1,
-                max_columns=None,
-                allowed_types=["numeric"],
-            ),
-            parameters=[
-                AlgorithmParameter(
-                    name="test_size",
-                    type="float",
-                    default=0.2,
-                    label="Test size",
-                ),
-                AlgorithmParameter(
-                    name="n_estimators",
-                    type="int",
-                    default=100,
-                    label="Number of trees",
-                ),
-            ],
-            outputs=AlgorithmOutputs(
-                metrics=["varies by task type"],
-                charts=["feature_importance"],
-                tables=["performance_summary"],
-            ),
-            validation_rules=[
-                "Target can be numeric, categorical, or boolean",
-                "At least one feature column is required",
-                "All features must be numeric",
-            ],
-        )
+    spec_path = "supervised/random-forest.yaml"
 
     def run(
         self,
@@ -237,3 +175,4 @@ class RandomForestAdapter(AlgorithmAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
+

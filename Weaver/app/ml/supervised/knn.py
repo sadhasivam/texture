@@ -1,18 +1,18 @@
-"""Spec-driven Support Vector Machine - minimal boilerplate."""
+"""Spec-driven K-Nearest Neighbors - minimal boilerplate."""
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC, SVR
 
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
-class SVMSpecAdapter(SpecDrivenAdapter):
-    """"Support Vector Machine using YAML spec for metadata."""
+class KNNAdapter(SpecDrivenAdapter):
+    """"K-Nearest Neighbors using YAML spec for metadata."""
 
-    spec_path = "supervised/svm.yaml"
+    spec_path = "supervised/knn.yaml"
 
     def run(
         self,
@@ -22,8 +22,8 @@ class SVMSpecAdapter(SpecDrivenAdapter):
         parameters: dict,
     ) -> dict:
         test_size = parameters.get("test_size", 0.2)
-        kernel = parameters.get("kernel", "rbf")
-        C = parameters.get("C", 1.0)
+        n_neighbors = parameters.get("n_neighbors", 5)
+        weights = parameters.get("weights", "uniform")
 
         # Prepare data
         X = dataframe[features]
@@ -37,7 +37,7 @@ class SVMSpecAdapter(SpecDrivenAdapter):
         # Determine if this is regression or classification
         is_regression = pd.api.types.is_numeric_dtype(y)
 
-        # Scale features (important for SVM)
+        # Scale features (important for distance-based algorithms)
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
@@ -46,22 +46,18 @@ class SVMSpecAdapter(SpecDrivenAdapter):
             X_train, X_test, y_train, y_test = train_test_split(
                 X_scaled, y, test_size=test_size, random_state=42
             )
-            model = SVR(kernel=kernel, C=C)
+            model = KNeighborsRegressor(n_neighbors=n_neighbors, weights=weights)
         else:
             X_train, X_test, y_train, y_test = train_test_split(
                 X_scaled, y, test_size=test_size, random_state=42, stratify=y
             )
-            model = SVC(kernel=kernel, C=C, random_state=42)
+            model = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights)
 
-        # Train model
+        # Train model (KNN just stores the data)
         model.fit(X_train, y_train)
 
         # Make predictions
         y_pred = model.predict(X_test)
-
-        # Get support vector count
-        n_support = len(model.support_)
-        support_ratio = n_support / len(X_train)
 
         if is_regression:
             # Regression metrics
@@ -74,7 +70,6 @@ class SVMSpecAdapter(SpecDrivenAdapter):
                 "r2": float(r2),
                 "mae": float(mae),
                 "rmse": float(rmse),
-                "support_vectors": int(n_support),
             }
 
             # Prepare predicted vs actual chart data with best fit line
@@ -108,17 +103,16 @@ class SVMSpecAdapter(SpecDrivenAdapter):
             explanations = [
                 f"The model explains about {r2*100:.1f}% of the variation in the target.",
                 f"On average, predictions are off by {mae:.2f} units (MAE).",
-                f"SVM used {n_support} support vectors ({support_ratio*100:.1f}% of training data).",
-                f"Kernel: {kernel}, C={C}",
+                f"KNN uses the {n_neighbors} nearest neighbors to predict values.",
+                f"Weight function: {weights}",
             ]
 
             tables = [
                 {
                     "type": "performance_summary",
                     "rows": [
-                        {"metric": "Support Vectors", "value": str(n_support)},
-                        {"metric": "Kernel", "value": kernel},
-                        {"metric": "C parameter", "value": str(C)},
+                        {"metric": "K (neighbors)", "value": str(n_neighbors)},
+                        {"metric": "Weight function", "value": weights},
                     ],
                 }
             ]
@@ -137,7 +131,6 @@ class SVMSpecAdapter(SpecDrivenAdapter):
                 "precision": float(precision),
                 "recall": float(recall),
                 "f1": float(f1),
-                "support_vectors": int(n_support),
             }
 
             # Build confusion matrix data
@@ -175,18 +168,17 @@ class SVMSpecAdapter(SpecDrivenAdapter):
 
             explanations = [
                 f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
-                f"SVM used {n_support} support vectors ({support_ratio*100:.1f}% of training data).",
-                f"The hyperplane is found by maximizing the margin between classes.",
-                f"Kernel: {kernel}, C={C}",
+                f"KNN uses the {n_neighbors} nearest neighbors to classify each point.",
+                f"Weight function: {weights} (distance gives closer neighbors more influence).",
+                "KNN is a lazy learner - it stores all training data and decides at prediction time.",
             ]
 
             tables = [
                 {
                     "type": "performance_summary",
                     "rows": [
-                        {"metric": "Support Vectors", "value": str(n_support)},
-                        {"metric": "Kernel", "value": kernel},
-                        {"metric": "C parameter", "value": str(C)},
+                        {"metric": "K (neighbors)", "value": str(n_neighbors)},
+                        {"metric": "Weight function", "value": weights},
                     ],
                 }
             ]
@@ -196,7 +188,7 @@ class SVMSpecAdapter(SpecDrivenAdapter):
             dropped = len(dataframe) - len(X)
             warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
-        warnings.append("Features were automatically scaled using StandardScaler for SVM.")
+        warnings.append("Features were automatically scaled using StandardScaler for KNN.")
 
         return {
             "summary": {

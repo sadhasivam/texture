@@ -67,6 +67,6 @@ spec:
   - All features must be numeric
   - Features are automatically scaled for KNN
   handler:
-    module: app.ml.knn_spec
-    class: KNNSpecAdapter
+    module: app.ml.supervised.knn
+    class: KNNAdapter
     interface: AlgorithmAdapter
