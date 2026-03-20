@@ -351,6 +351,33 @@ class TestAdaBoost:
         # Use global registry
         return registry.get_adapter("adaboost")
 
+
+    def test_run_with_default_params(self, algorithm, sample_classification_data, sample_params_classification):
+        """Test AdaBoost runs with default parameters."""
+        result = algorithm.run(
+            sample_classification_data,
+            "target",
+            ["feature_1", "feature_2", "feature_3"],
+            sample_params_classification,
+        )
+
+        assert "metrics" in result
+        assert "charts" in result
+        assert "summary" in result
+
+    def test_produces_feature_importance(self, algorithm, sample_classification_data, sample_params_classification):
+        """Test AdaBoost produces feature importance."""
+        result = algorithm.run(
+            sample_classification_data,
+            "target",
+            ["feature_1", "feature_2", "feature_3"],
+            sample_params_classification,
+        )
+
+        chart_names = [c["type"] for c in result["charts"]]
+        assert "feature_importance" in chart_names
+
+
 class TestXGBoost:
     """Tests for XGBoost algorithm."""
 
