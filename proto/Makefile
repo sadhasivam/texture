@@ -12,11 +12,19 @@ generate-go:
 generate-python:
 	@echo "Generating Python protobuf code..."
 	@mkdir -p ../Weaver/app/pb
-	cd ../Weaver && uv run python -m grpc_tools.protoc -I../proto --python_out=app/pb --grpc_python_out=app/pb ../proto/*.proto
+	uv run --directory=../Weaver python -m grpc_tools.protoc \
+		--proto_path=../proto \
+		--python_out=app/pb \
+		--grpc_python_out=app/pb \
+		--pyi_out=app/pb \
+		../proto/common.proto ../proto/weaver.proto
+	@echo "Generated protobuf files successfully"
 
 # Generate both
 generate: generate-go generate-python
 
 clean:
 	rm -rf ../Loom/pb/*
-	rm -rf ../Weaver/app/pb/*
+	find ../Weaver/app/pb -type f -name '*_pb2.py' -delete
+	find ../Weaver/app/pb -type f -name '*_pb2.pyi' -delete
+	find ../Weaver/app/pb -type f -name '*_pb2_grpc.py' -delete

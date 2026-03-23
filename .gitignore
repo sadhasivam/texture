@@ -154,4 +154,5 @@ Loom/pb/*_grpc.pb.go
 
 # Python generated protobuf/grpc files
 Weaver/app/pb/*_pb2.py
+Weaver/app/pb/*_pb2.pyi
 Weaver/app/pb/*_pb2_grpc.py
