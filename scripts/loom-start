@@ -14,6 +14,8 @@ fi
 echo "Building Loom..."
 go build -o bin/loom ./cmd/loom
 
+go env -w GOARCH=arm64
+
 # Start server in background
 echo "Starting Loom server on port 8080..."
 ./bin/loom serve > /tmp/loom.log 2>&1 &
