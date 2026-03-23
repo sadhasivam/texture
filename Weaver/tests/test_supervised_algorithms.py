@@ -1,7 +1,7 @@
 """Test cases for supervised learning algorithms."""
+
 import pytest
-import pandas as pd
-import numpy as np
+
 from app.services.spec_registry import spec_registry as registry
 
 
@@ -28,7 +28,12 @@ class TestLinearRegression:
             "feature_columns": ["feature_1", "feature_2", "feature_3"],
         }
 
-        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"test_size": 0.2})
+        errors = algorithm.validate_mapping(
+            schema["columns"],
+            mapping["target_column"],
+            mapping["feature_columns"],
+            {"test_size": 0.2},
+        )
         assert len(errors) == 0
 
     def test_validate_non_numeric_target(self, algorithm):
@@ -44,11 +49,18 @@ class TestLinearRegression:
             "feature_columns": ["feature_1"],
         }
 
-        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"test_size": 0.2})
+        errors = algorithm.validate_mapping(
+            schema["columns"],
+            mapping["target_column"],
+            mapping["feature_columns"],
+            {"test_size": 0.2},
+        )
         assert len(errors) > 0
         assert any("numeric" in err.lower() for err in errors)
 
-    def test_run_produces_metrics(self, algorithm, sample_regression_data, sample_params_regression):
+    def test_run_produces_metrics(
+        self, algorithm, sample_regression_data, sample_params_regression
+    ):
         """Test algorithm execution produces required metrics."""
         result = algorithm.run(
             sample_regression_data,
@@ -65,7 +77,9 @@ class TestLinearRegression:
         assert result["metrics"]["mae"] >= 0
         assert result["metrics"]["rmse"] >= 0
 
-    def test_run_produces_visualizations(self, algorithm, sample_regression_data, sample_params_regression):
+    def test_run_produces_visualizations(
+        self, algorithm, sample_regression_data, sample_params_regression
+    ):
         """Test algorithm execution produces visualizations."""
         result = algorithm.run(
             sample_regression_data,
@@ -117,10 +131,17 @@ class TestLogisticRegression:
             "feature_columns": ["feature_1"],
         }
 
-        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"test_size": 0.2})
+        errors = algorithm.validate_mapping(
+            schema["columns"],
+            mapping["target_column"],
+            mapping["feature_columns"],
+            {"test_size": 0.2},
+        )
         assert len(errors) == 0
 
-    def test_run_produces_classification_metrics(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_run_produces_classification_metrics(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test algorithm execution produces classification metrics."""
         result = algorithm.run(
             sample_classification_data,
@@ -137,7 +158,9 @@ class TestLogisticRegression:
         assert 0 <= result["metrics"]["accuracy"] <= 1
         assert 0 <= result["metrics"]["f1"] <= 1
 
-    def test_run_produces_confusion_matrix(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_run_produces_confusion_matrix(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test algorithm produces confusion matrix visualization."""
         result = algorithm.run(
             sample_classification_data,
@@ -160,7 +183,9 @@ class TestDecisionTree:
         # Use global registry
         return registry.get_adapter("decision_tree")
 
-    def test_handles_regression_task(self, algorithm, sample_regression_data, sample_params_regression):
+    def test_handles_regression_task(
+        self, algorithm, sample_regression_data, sample_params_regression
+    ):
         """Test decision tree handles regression."""
         result = algorithm.run(
             sample_regression_data,
@@ -172,7 +197,9 @@ class TestDecisionTree:
         assert "metrics" in result
         assert "r2" in result["metrics"]
 
-    def test_handles_classification_task(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_handles_classification_task(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test decision tree handles classification."""
         result = algorithm.run(
             sample_classification_data,
@@ -184,7 +211,9 @@ class TestDecisionTree:
         assert "metrics" in result
         assert "accuracy" in result["metrics"]
 
-    def test_produces_feature_importance(self, algorithm, sample_regression_data, sample_params_regression):
+    def test_produces_feature_importance(
+        self, algorithm, sample_regression_data, sample_params_regression
+    ):
         """Test decision tree produces feature importance."""
         result = algorithm.run(
             sample_regression_data,
@@ -220,7 +249,9 @@ class TestRandomForest:
         assert "charts" in result
         assert "summary" in result
 
-    def test_produces_feature_importance(self, algorithm, sample_regression_data, sample_params_regression):
+    def test_produces_feature_importance(
+        self, algorithm, sample_regression_data, sample_params_regression
+    ):
         """Test random forest produces feature importance."""
         result = algorithm.run(
             sample_regression_data,
@@ -270,7 +301,9 @@ class TestNaiveBayes:
         # Use global registry
         return registry.get_adapter("naive_bayes")
 
-    def test_classification_task(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_classification_task(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test naive bayes classification."""
         result = algorithm.run(
             sample_classification_data,
@@ -305,7 +338,9 @@ class TestSVM:
         assert "metrics" in result
         assert "r2" in result["metrics"]
 
-    def test_classification_task(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_classification_task(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test SVM classification."""
         result = algorithm.run(
             sample_classification_data,
@@ -351,8 +386,9 @@ class TestAdaBoost:
         # Use global registry
         return registry.get_adapter("adaboost")
 
-
-    def test_run_with_default_params(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_run_with_default_params(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test AdaBoost runs with default parameters."""
         result = algorithm.run(
             sample_classification_data,
@@ -365,7 +401,9 @@ class TestAdaBoost:
         assert "charts" in result
         assert "summary" in result
 
-    def test_produces_feature_importance(self, algorithm, sample_classification_data, sample_params_classification):
+    def test_produces_feature_importance(
+        self, algorithm, sample_classification_data, sample_params_classification
+    ):
         """Test AdaBoost produces feature importance."""
         result = algorithm.run(
             sample_classification_data,

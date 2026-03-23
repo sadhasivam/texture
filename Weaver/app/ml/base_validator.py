@@ -33,21 +33,15 @@ class MetadataDrivenValidator:
         col_types = {col["name"]: col["inferred_type"] for col in schema}
 
         # Validate target
-        errors.extend(
-            MetadataDrivenValidator._validate_target(target, col_types, metadata)
-        )
+        errors.extend(MetadataDrivenValidator._validate_target(target, col_types, metadata))
 
         # Validate features
         errors.extend(
-            MetadataDrivenValidator._validate_features(
-                features, col_types, target, metadata
-            )
+            MetadataDrivenValidator._validate_features(features, col_types, target, metadata)
         )
 
         # Validate parameters
-        errors.extend(
-            MetadataDrivenValidator._validate_parameters(parameters, metadata)
-        )
+        errors.extend(MetadataDrivenValidator._validate_parameters(parameters, metadata))
 
         return errors
 
@@ -108,20 +102,14 @@ class MetadataDrivenValidator:
             return errors
 
         # Check minimum feature count
-        if (
-            metadata.features.min_columns
-            and len(features) < metadata.features.min_columns
-        ):
+        if metadata.features.min_columns and len(features) < metadata.features.min_columns:
             errors.append(
                 f"At least {metadata.features.min_columns} feature column(s) required, "
                 f"but only {len(features)} selected"
             )
 
         # Check maximum feature count
-        if (
-            metadata.features.max_columns
-            and len(features) > metadata.features.max_columns
-        ):
+        if metadata.features.max_columns and len(features) > metadata.features.max_columns:
             errors.append(
                 f"Maximum {metadata.features.max_columns} feature column(s) allowed, "
                 f"but {len(features)} selected"
@@ -157,9 +145,7 @@ class MetadataDrivenValidator:
         return errors
 
     @staticmethod
-    def _validate_parameters(
-        parameters: dict, metadata: AlgorithmMetadata
-    ) -> list[str]:
+    def _validate_parameters(parameters: dict, metadata: AlgorithmMetadata) -> list[str]:
         """Validate algorithm parameters based on metadata."""
         errors = []
 
@@ -197,8 +183,7 @@ class MetadataDrivenValidator:
                 if param_name in ["n_neighbors", "max_depth", "n_estimators"]:
                     if param_value <= 0:
                         errors.append(
-                            f"Parameter '{param_name}' must be positive, "
-                            f"but got {param_value}"
+                            f"Parameter '{param_name}' must be positive, but got {param_value}"
                         )
 
             elif param_meta.type == "string":

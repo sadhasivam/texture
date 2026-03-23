@@ -1,0 +1,14 @@
+#!/bin/bash
+# Stop all services
+
+SCRIPT_DIR="$(dirname "$0")"
+
+echo "🛑 Stopping all services..."
+echo ""
+
+"$SCRIPT_DIR/kolam-stop"
+"$SCRIPT_DIR/loom-stop"
+"$SCRIPT_DIR/weaver-stop"
+
+echo ""
+echo "✓ All services stopped"

@@ -1,4 +1,5 @@
 """Spec-driven Isolation Forest - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.ensemble import IsolationForest as SklearnIsolationForest
 
@@ -6,7 +7,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class IsolationForestAdapter(SpecDrivenAdapter):
-    """"Isolation Forest using YAML spec for metadata."""
+    """ "Isolation Forest using YAML spec for metadata."""
 
     spec_path = "unsupervised/isolation-forest.yaml"
 
@@ -17,9 +18,9 @@ class IsolationForestAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        contamination = parameters.get("contamination", 0.1)
-        n_estimators = parameters.get("n_estimators", 100)
-        max_samples = parameters.get("max_samples", 256)
+        contamination = float(parameters.get("contamination", 0.1))
+        n_estimators = int(parameters.get("n_estimators", 100))
+        max_samples = int(parameters.get("max_samples", 256))
 
         # Ensure contamination is valid
         contamination = max(0.0, min(0.5, contamination))
@@ -61,16 +62,14 @@ class IsolationForestAdapter(SpecDrivenAdapter):
         scatter_data = []
         for idx, row in X.iterrows():
             loc = X.index.get_loc(idx)
-            scatter_data.append({
-                "x": float(row[features[0]]),
-                "y": float(
-                    row[features[1]]
-                    if len(features) > 1
-                    else anomaly_scores[loc]
-                ),
-                "is_anomaly": bool(predictions[loc] == -1),
-                "anomaly_score": float(anomaly_scores[loc]),
-            })
+            scatter_data.append(
+                {
+                    "x": float(row[features[0]]),
+                    "y": float(row[features[1]] if len(features) > 1 else anomaly_scores[loc]),
+                    "is_anomaly": bool(predictions[loc] == -1),
+                    "anomaly_score": float(anomaly_scores[loc]),
+                }
+            )
 
         # Anomaly score distribution
         score_distribution = [
@@ -118,7 +117,7 @@ class IsolationForestAdapter(SpecDrivenAdapter):
 
         explanations = [
             f"Isolation Forest detected {n_anomalies} anomalies ({anomaly_percentage:.1f}% of data).",
-            f"Expected contamination: {contamination*100:.1f}%.",
+            f"Expected contamination: {contamination * 100:.1f}%.",
             "Anomalies are observations that are easily isolated (require fewer splits).",
             f"Used {n_estimators} trees for robust anomaly detection.",
         ]
@@ -126,19 +125,15 @@ class IsolationForestAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before detection."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before detection.")
 
         if n_anomalies == 0:
-            warnings.append(
-                "No anomalies detected. Consider increasing contamination parameter."
-            )
+            warnings.append("No anomalies detected. Consider increasing contamination parameter.")
 
         if anomaly_percentage > contamination * 100 * 1.5:
             warnings.append(
                 f"Detected {anomaly_percentage:.1f}% anomalies, "
-                f"but expected {contamination*100:.1f}%. "
+                f"but expected {contamination * 100:.1f}%. "
                 "This may indicate the contamination parameter is too low."
             )
 
@@ -155,4 +150,3 @@ class IsolationForestAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

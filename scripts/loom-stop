@@ -1,0 +1,8 @@
+#!/bin/bash
+# Stop Wrap Go webserver
+
+if pkill -f "wrap serve"; then
+    echo "✓ Loom stopped"
+else
+    echo "⚠️  Loom not running"
+fi

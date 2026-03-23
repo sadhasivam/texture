@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package texture;
+
+option go_package = "github.com/sadhasivam/texture/pb";
+
+// Chart data for visualizations
+message Chart {
+  string type = 1;              // scatter, bar, line, confusion_matrix, etc.
+  string title = 2;
+  repeated DataPoint data = 3;
+  map<string, string> options = 4;  // Additional chart options
+}
+
+// Single data point in a chart
+message DataPoint {
+  map<string, double> values = 1;
+}
+
+// Table data
+message Table {
+  string type = 1;              // coefficients, cluster_summary, etc.
+  repeated string columns = 2;
+  repeated Row rows = 3;
+}
+
+// Table row
+message Row {
+  map<string, string> cells = 1;  // column_name -> value (as string)
+}

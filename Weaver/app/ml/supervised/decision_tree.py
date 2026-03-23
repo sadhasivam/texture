@@ -1,7 +1,16 @@
 """Spec-driven Decision Tree - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
@@ -9,7 +18,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class DecisionTreeAdapter(SpecDrivenAdapter):
-    """"Decision Tree using YAML spec for metadata."""
+    """ "Decision Tree using YAML spec for metadata."""
 
     spec_path = "supervised/decision-tree.yaml"
 
@@ -20,8 +29,8 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
-        max_depth = parameters.get("max_depth", 5)
+        test_size = float(parameters.get("test_size", 0.2))
+        max_depth = int(parameters.get("max_depth", 5))
 
         # Prepare data
         X = dataframe[features]
@@ -93,7 +102,7 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model explains about {r2*100:.1f}% of the variation in the target.",
+                f"The model explains about {r2 * 100:.1f}% of the variation in the target.",
                 f"On average, predictions are off by {mae:.2f} units (MAE).",
                 "Decision trees split the data based on feature values to minimize error.",
             ]
@@ -103,9 +112,7 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
         else:
             # Classification metrics
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(
-                y_test, y_pred, average="weighted", zero_division=0
-            )
+            precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
             recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
             f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
 
@@ -119,8 +126,7 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
             # Class distribution
             class_dist = y.value_counts()
             class_distribution_data = [
-                {"class": str(cls), "count": int(count)}
-                for cls, count in class_dist.items()
+                {"class": str(cls), "count": int(count)} for cls, count in class_dist.items()
             ]
 
             charts = [
@@ -137,7 +143,7 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
+                f"The model achieved {accuracy * 100:.1f}% accuracy on the test set.",
                 "Decision trees split the data based on feature values to maximize class purity.",
                 f"The tree has a maximum depth of {max_depth} levels.",
             ]
@@ -147,9 +153,7 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
         return {
             "summary": {
@@ -164,4 +168,3 @@ class DecisionTreeAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

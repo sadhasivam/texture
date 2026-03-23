@@ -1,0 +1,8 @@
+#!/bin/bash
+# Build protobuf for Wrap (Go)
+set -e
+
+cd "$(dirname "$0")/../proto"
+echo "Generating Go protobuf code..."
+make generate-go
+echo "✓ Wrap protobuf generated"

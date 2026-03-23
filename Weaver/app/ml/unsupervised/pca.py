@@ -1,4 +1,5 @@
 """Spec-driven PCA (Principal Component Analysis) - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.decomposition import PCA as SklearnPCA
 
@@ -6,7 +7,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class PCAAdapter(SpecDrivenAdapter):
-    """"PCA (Principal Component Analysis) using YAML spec for metadata."""
+    """ "PCA (Principal Component Analysis) using YAML spec for metadata."""
 
     spec_path = "unsupervised/pca.yaml"
 
@@ -17,7 +18,8 @@ class PCAAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        n_components = parameters.get("n_components", 2)
+        # Convert n_components to int (may come as string from form)
+        n_components = int(parameters.get("n_components", 2))
 
         # Ensure n_components doesn't exceed features
         n_components = min(n_components, len(features))
@@ -33,9 +35,7 @@ class PCAAdapter(SpecDrivenAdapter):
         X_transformed = pca.fit_transform(X)
 
         # Explained variance
-        explained_variance_ratio = [
-            float(var) for var in pca.explained_variance_ratio_
-        ]
+        explained_variance_ratio = [float(var) for var in pca.explained_variance_ratio_]
         cumulative_variance = []
         cumsum = 0
         for var in explained_variance_ratio:
@@ -43,8 +43,10 @@ class PCAAdapter(SpecDrivenAdapter):
             cumulative_variance.append(float(cumsum))
 
         metrics = {
-            "explained_variance_ratio": explained_variance_ratio,
             "cumulative_variance": cumulative_variance[-1],
+            "first_component_variance": explained_variance_ratio[0]
+            if explained_variance_ratio
+            else 0.0,
         }
 
         # PCA scatter plot (2D or 3D depending on components)
@@ -67,7 +69,7 @@ class PCAAdapter(SpecDrivenAdapter):
         # Variance explained bar chart
         variance_data = [
             {
-                "component": f"PC{i+1}",
+                "component": f"PC{i + 1}",
                 "variance": float(explained_variance_ratio[i] * 100),
                 "cumulative": float(cumulative_variance[i] * 100),
             }
@@ -93,7 +95,7 @@ class PCAAdapter(SpecDrivenAdapter):
         for i, feature in enumerate(features):
             row = {"feature": feature}
             for j in range(n_components):
-                row[f"PC{j+1}"] = float(loadings[j][i])
+                row[f"PC{j + 1}"] = float(loadings[j][i])
             loading_table.append(row)
 
         tables = [
@@ -105,20 +107,18 @@ class PCAAdapter(SpecDrivenAdapter):
 
         explanations = [
             f"PCA reduced {len(features)} features to {n_components} principal components.",
-            f"The first {n_components} components explain {cumulative_variance[-1]*100:.1f}% of the total variance.",
+            f"The first {n_components} components explain {cumulative_variance[-1] * 100:.1f}% of the total variance.",
         ]
 
         if n_components >= 1:
             explanations.append(
-                f"PC1 alone explains {explained_variance_ratio[0]*100:.1f}% of the variance."
+                f"PC1 alone explains {explained_variance_ratio[0] * 100:.1f}% of the variance."
             )
 
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before PCA."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before PCA.")
 
         if n_components > len(features):
             warnings.append(
@@ -137,4 +137,3 @@ class PCAAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

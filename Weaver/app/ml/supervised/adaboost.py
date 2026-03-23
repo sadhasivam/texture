@@ -1,15 +1,24 @@
 """Spec-driven AdaBoost - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier, AdaBoostRegressor
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
 
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class AdaBoostAdapter(SpecDrivenAdapter):
-    """"AdaBoost using YAML spec for metadata."""
+    """ "AdaBoost using YAML spec for metadata."""
 
     spec_path = "supervised/adaboost.yaml"
 
@@ -20,9 +29,9 @@ class AdaBoostAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
-        n_estimators = parameters.get("n_estimators", 50)
-        learning_rate = parameters.get("learning_rate", 1.0)
+        test_size = float(parameters.get("test_size", 0.2))
+        n_estimators = int(parameters.get("n_estimators", 50))
+        learning_rate = float(parameters.get("learning_rate", 1.0))
 
         # Prepare data
         X = dataframe[features]
@@ -103,7 +112,7 @@ class AdaBoostAdapter(SpecDrivenAdapter):
 
             explanations = [
                 f"AdaBoost combined {n_estimators} weak learners into a strong predictor.",
-                f"The ensemble explains {r2*100:.1f}% of the variation in the target.",
+                f"The ensemble explains {r2 * 100:.1f}% of the variation in the target.",
                 "Each subsequent learner focuses more on previously misclassified samples.",
             ]
 
@@ -112,9 +121,7 @@ class AdaBoostAdapter(SpecDrivenAdapter):
         else:
             # Classification metrics
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(
-                y_test, y_pred, average="weighted", zero_division=0
-            )
+            precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
             recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
             f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
 
@@ -128,8 +135,7 @@ class AdaBoostAdapter(SpecDrivenAdapter):
             # Class distribution
             class_dist = y.value_counts()
             class_distribution_data = [
-                {"class": str(cls), "count": int(count)}
-                for cls, count in class_dist.items()
+                {"class": str(cls), "count": int(count)} for cls, count in class_dist.items()
             ]
 
             charts = [
@@ -146,7 +152,7 @@ class AdaBoostAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"AdaBoost achieved {accuracy*100:.1f}% accuracy using {n_estimators} weak learners.",
+                f"AdaBoost achieved {accuracy * 100:.1f}% accuracy using {n_estimators} weak learners.",
                 "AdaBoost adaptively weights training samples based on previous errors.",
                 "Works well when weak learners are slightly better than random guessing.",
             ]
@@ -156,9 +162,7 @@ class AdaBoostAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
         return {
             "summary": {
@@ -174,4 +178,3 @@ class AdaBoostAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

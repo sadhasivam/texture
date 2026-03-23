@@ -1,7 +1,16 @@
 """Spec-driven K-Nearest Neighbors - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.preprocessing import StandardScaler
@@ -10,7 +19,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class KNNAdapter(SpecDrivenAdapter):
-    """"K-Nearest Neighbors using YAML spec for metadata."""
+    """ "K-Nearest Neighbors using YAML spec for metadata."""
 
     spec_path = "supervised/knn.yaml"
 
@@ -21,8 +30,8 @@ class KNNAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
-        n_neighbors = parameters.get("n_neighbors", 5)
+        test_size = float(parameters.get("test_size", 0.2))
+        n_neighbors = int(parameters.get("n_neighbors", 5))
         weights = parameters.get("weights", "uniform")
 
         # Prepare data
@@ -101,7 +110,7 @@ class KNNAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model explains about {r2*100:.1f}% of the variation in the target.",
+                f"The model explains about {r2 * 100:.1f}% of the variation in the target.",
                 f"On average, predictions are off by {mae:.2f} units (MAE).",
                 f"KNN uses the {n_neighbors} nearest neighbors to predict values.",
                 f"Weight function: {weights}",
@@ -120,9 +129,7 @@ class KNNAdapter(SpecDrivenAdapter):
         else:
             # Classification metrics
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(
-                y_test, y_pred, average="weighted", zero_division=0
-            )
+            precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
             recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
             f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
 
@@ -167,7 +174,7 @@ class KNNAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
+                f"The model achieved {accuracy * 100:.1f}% accuracy on the test set.",
                 f"KNN uses the {n_neighbors} nearest neighbors to classify each point.",
                 f"Weight function: {weights} (distance gives closer neighbors more influence).",
                 "KNN is a lazy learner - it stores all training data and decides at prediction time.",
@@ -203,4 +210,3 @@ class KNNAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

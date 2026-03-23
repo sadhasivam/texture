@@ -68,7 +68,7 @@ Plus tests for:
 
 When adding a new algorithm:
 
-1. Add YAML spec to `algorithms/supervised/` or `algorithms/unsupervised/`
+1. Add YAML spec to `../algorithms/supervised/` or `../algorithms/unsupervised/`
 2. Implement adapter in `app/ml/supervised/` or `app/ml/unsupervised/`
 3. Add test class following existing patterns:
 

@@ -1,4 +1,5 @@
 """Spec-driven Naive Bayes - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
@@ -8,7 +9,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class NaiveBayesAdapter(SpecDrivenAdapter):
-    """"Naive Bayes using YAML spec for metadata."""
+    """ "Naive Bayes using YAML spec for metadata."""
 
     spec_path = "supervised/naive-bayes.yaml"
 
@@ -19,7 +20,7 @@ class NaiveBayesAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
+        test_size = float(parameters.get("test_size", 0.2))
         variant = parameters.get("variant", "gaussian")
 
         # Prepare data
@@ -129,7 +130,7 @@ class NaiveBayesAdapter(SpecDrivenAdapter):
 
         # Generate explanations
         explanations = [
-            f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
+            f"The model achieved {accuracy * 100:.1f}% accuracy on the test set.",
             f"Overall F1-score is {f1:.3f}, balancing precision and recall.",
             f"Variant: {variant_desc}",
             "Naive Bayes assumes features are independent given the class (may not be realistic).",
@@ -144,9 +145,7 @@ class NaiveBayesAdapter(SpecDrivenAdapter):
 
         if has_proba:
             avg_confidence = y_proba.max(axis=1).mean()
-            explanations.append(
-                f"Average prediction confidence: {avg_confidence*100:.1f}%"
-            )
+            explanations.append(f"Average prediction confidence: {avg_confidence * 100:.1f}%")
 
         warnings = []
         if len(X) < len(dataframe):
@@ -187,4 +186,3 @@ class NaiveBayesAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

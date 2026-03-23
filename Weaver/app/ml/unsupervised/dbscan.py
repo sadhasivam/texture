@@ -1,4 +1,5 @@
 """Spec-driven DBSCAN - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.cluster import DBSCAN as SklearnDBSCAN
 from sklearn.metrics import silhouette_score
@@ -7,7 +8,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class DBSCANAdapter(SpecDrivenAdapter):
-    """"DBSCAN using YAML spec for metadata."""
+    """ "DBSCAN using YAML spec for metadata."""
 
     spec_path = "unsupervised/dbscan.yaml"
 
@@ -18,8 +19,8 @@ class DBSCANAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        eps = parameters.get("eps", 0.5)
-        min_samples = parameters.get("min_samples", 5)
+        eps = float(parameters.get("eps", 0.5))
+        min_samples = int(parameters.get("min_samples", 5))
 
         # Prepare data
         X = dataframe[features]
@@ -46,9 +47,7 @@ class DBSCANAdapter(SpecDrivenAdapter):
             non_noise_mask = cluster_labels != -1
             if sum(non_noise_mask) > 0:
                 silhouette = float(
-                    silhouette_score(
-                        X[non_noise_mask], cluster_labels[non_noise_mask]
-                    )
+                    silhouette_score(X[non_noise_mask], cluster_labels[non_noise_mask])
                 )
                 metrics["silhouette_score"] = silhouette
 
@@ -56,12 +55,14 @@ class DBSCANAdapter(SpecDrivenAdapter):
         scatter_data = []
         for idx, row in X.iterrows():
             cluster_id = int(cluster_labels[X.index.get_loc(idx)])
-            scatter_data.append({
-                "x": float(row[features[0]]),
-                "y": float(row[features[1]] if len(features) > 1 else row[features[0]]),
-                "cluster": cluster_id,
-                "is_noise": cluster_id == -1,
-            })
+            scatter_data.append(
+                {
+                    "x": float(row[features[0]]),
+                    "y": float(row[features[1]] if len(features) > 1 else row[features[0]]),
+                    "cluster": cluster_id,
+                    "is_noise": cluster_id == -1,
+                }
+            )
 
         charts = [
             {
@@ -77,21 +78,25 @@ class DBSCANAdapter(SpecDrivenAdapter):
 
         for cluster_id in sorted(unique_clusters):
             if cluster_id == -1:
-                cluster_summary.append({
-                    "cluster": "Noise",
-                    "cluster_id": -1,
-                    "size": int(n_noise),
-                    "percentage": float(n_noise / len(cluster_labels) * 100),
-                })
+                cluster_summary.append(
+                    {
+                        "cluster": "Noise",
+                        "cluster_id": -1,
+                        "size": int(n_noise),
+                        "percentage": float(n_noise / len(cluster_labels) * 100),
+                    }
+                )
             else:
                 cluster_mask = cluster_labels == cluster_id
                 cluster_size = int(cluster_mask.sum())
-                cluster_summary.append({
-                    "cluster": f"Cluster {cluster_id}",
-                    "cluster_id": int(cluster_id),
-                    "size": cluster_size,
-                    "percentage": float(cluster_size / len(cluster_labels) * 100),
-                })
+                cluster_summary.append(
+                    {
+                        "cluster": f"Cluster {cluster_id}",
+                        "cluster_id": int(cluster_id),
+                        "size": cluster_size,
+                        "percentage": float(cluster_size / len(cluster_labels) * 100),
+                    }
+                )
 
         tables = [
             {
@@ -102,7 +107,7 @@ class DBSCANAdapter(SpecDrivenAdapter):
 
         explanations = [
             f"DBSCAN identified {n_clusters} clusters based on density.",
-            f"Found {n_noise} noise points ({n_noise/len(cluster_labels)*100:.1f}% of data).",
+            f"Found {n_noise} noise points ({n_noise / len(cluster_labels) * 100:.1f}% of data).",
             f"Epsilon (neighborhood radius): {eps}. Smaller values create more strict clusters.",
             f"Minimum samples: {min_samples}. Core points must have this many neighbors.",
         ]
@@ -115,14 +120,10 @@ class DBSCANAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before clustering."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before clustering.")
 
         if n_noise > len(cluster_labels) * 0.5:
-            warnings.append(
-                f"More than 50% of points are noise. Consider adjusting parameters."
-            )
+            warnings.append("More than 50% of points are noise. Consider adjusting parameters.")
 
         return {
             "summary": {
@@ -137,4 +138,3 @@ class DBSCANAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

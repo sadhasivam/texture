@@ -23,16 +23,17 @@ export interface ChartData {
 
 export interface TableData {
   type: string;
+  columns?: string[] | null;
   rows: Record<string, string | number>[];
 }
 
 export interface RunResponse {
-  run_id: string;
   status: string;
-  summary: RunSummary;
-  metrics: Record<string, number>;
-  charts: ChartData[];
-  tables: TableData[];
-  explanations: string[];
-  warnings: string[];
+  summary?: RunSummary;
+  metrics?: Record<string, number>;
+  charts?: ChartData[];
+  tables?: TableData[];
+  explanations?: string[];
+  warnings?: string[];
+  error_message?: string;
 }

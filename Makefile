@@ -1,85 +1,81 @@
-.PHONY: build start stop status
+.PHONY: help install dev-loom dev-weaver build start stop status clean
 
-# Export PATH to include pnpm and uv
-export PNPM_HOME := $(HOME)/.local/share/pnpm
-export PATH := $(PNPM_HOME):$(HOME)/.local/bin:$(HOME)/.cargo/bin:$(PATH)
+export PATH := $(HOME)/.local/bin:$(HOME)/.cargo/bin:$(PATH)
 
-# Build frontend
-build:
-	@echo "Building Kolam frontend..."
-	@cd Kolam && pnpm build
-	@echo "✓ Frontend built to Kolam/dist"
+ROOT := $(CURDIR)
 
-# Start all servers in production mode
-start: build
-	@echo "Starting Weaver backend..."
-	@cd Weaver && nohup .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 > ../weaver.log 2>&1 & echo $$! > ../weaver.pid
+help: ## Show this help message
+	@echo 'Texture - ML Learning Studio'
+	@echo ''
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Available targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+install: ## Install dependencies for backend services
+	@echo "Installing Loom (Go backend) dependencies..."
+	@cd Loom && go mod download && go mod tidy
+	@echo "Installing Weaver (Python gRPC) dependencies..."
+	@cd Weaver && uv sync
+	@echo "✓ Backend dependencies installed"
+
+dev-loom: ## Run Loom Go backend in dev mode
+	@cd Loom && go run cmd/loom/*.go serve
+
+dev-weaver: ## Run Weaver Python gRPC server in dev mode
+	@cd Weaver && .venv/bin/python grpc_main.py
+
+build: ## Build Loom Go backend binary
+	@echo "Building Loom backend..."
+	@cd Loom && go build -o bin/loom cmd/loom/*.go
+	@echo "✓ Backend built to Loom/bin/loom"
+
+start: build ## Start all production services in background
+	@echo "Starting Weaver gRPC server..."
+	@cd Weaver && nohup .venv/bin/python grpc_main.py > /tmp/weaver_grpc.log 2>&1 &
 	@sleep 2
-	@echo "Weaver backend started (PID: $$(cat weaver.pid))"
-	@echo "Verifying backend is running..."
-	@if pgrep -f "uvicorn app.main:app" > /dev/null; then \
-		echo "  ✓ Backend is running"; \
-	else \
-		echo "  ✗ Backend failed to start - check weaver.log"; \
-		tail -20 weaver.log; \
-	fi
-	@echo "Starting Caddy server..."
-	@caddy start --config $(PWD)/Caddyfile --adapter caddyfile > caddy.log 2>&1
-	@sleep 1
-	@echo "✓ Production server started"
-	@echo "  Application: http://0.0.0.0:8080"
-	@echo "  Backend: http://localhost:8000 (internal)"
-	@echo "  Logs: weaver.log, caddy.log"
+	@echo "Starting Loom API server..."
+	@cd Loom && nohup ./bin/loom serve > /tmp/loom.log 2>&1 &
+	@sleep 2
+	@echo "Starting Caddy reverse proxy..."
+	@caddy start --config "$(ROOT)/Caddyfile" --adapter caddyfile || true
+	@echo "✓ All services started"
 	@echo ""
-	@echo "Both servers running in background. Safe to close terminal."
-	@echo "Check status: make status"
-	@echo "Stop servers: make stop"
+	@echo "Services:"
+	@echo "  Weaver gRPC: localhost:50051"
+	@echo "  Loom API:    localhost:8080"
+	@echo "  Caddy:       http://localhost"
+	@echo ""
+	@echo "Logs:"
+	@echo "  Weaver: /tmp/weaver_grpc.log"
+	@echo "  Loom:   /tmp/loom.log"
 
-# Stop all servers
-stop:
-	@echo "Stopping all servers..."
-	@echo ""
+stop: ## Stop all production services
+	@echo "Stopping Loom API server..."
+	@pkill -f "./bin/loom serve" || true
+	@echo "Stopping Weaver gRPC server..."
+	@pkill -f "grpc_main.py" || true
 	@echo "Stopping Caddy..."
-	@caddy stop 2>/dev/null && echo "  ✓ Caddy stopped" || echo "  - Caddy not running"
-	@pkill -9 -f "caddy" 2>/dev/null || true
-	@echo ""
-	@echo "Stopping backend..."
-	@if [ -f weaver.pid ]; then \
-		PID=$$(cat weaver.pid 2>/dev/null); \
-		if [ -n "$$PID" ] && kill -0 $$PID 2>/dev/null; then \
-			kill -9 $$PID && echo "  ✓ Backend stopped (PID $$PID)"; \
-		fi; \
-	fi
-	@pkill -9 -f "uvicorn app.main:app" 2>/dev/null && echo "  ✓ Killed uvicorn processes" || true
-	@pkill -9 -f ".venv/bin/python -m uvicorn" 2>/dev/null || true
-	@pkill -9 -f "python -m uvicorn" 2>/dev/null || true
-	@echo ""
-	@echo "Cleaning up..."
-	@rm -f weaver.pid
-	@sleep 1
-	@echo ""
-	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
-		echo "⚠ Warning: Backend still running!"; \
-		ps aux | grep "uvicorn" | grep -v grep; \
-	else \
-		echo "✓ All servers stopped"; \
-	fi
+	@caddy stop || true
+	@pkill -f "caddy" || true
+	@echo "✓ All services stopped"
 
-# Check status
-status:
+status: ## Show status of backend services
 	@echo "Texture Status"
 	@echo "=============="
 	@echo ""
-	@echo "Backend (Weaver):"
-	@if pgrep -f "uvicorn app.main:app" > /dev/null 2>&1; then \
-		echo "  ✓ Running (PID: $$(pgrep -f 'uvicorn app.main:app'))"; \
-	else \
-		echo "  ✗ Not running"; \
-	fi
+	@echo "Loom (Go Backend - port 8080):"
+	@pgrep -af "loom serve" || echo "  not running"
 	@echo ""
-	@echo "Caddy:"
-	@if pgrep -f "caddy" > /dev/null 2>&1; then \
-		echo "  ✓ Running (PID: $$(pgrep -f 'caddy'))"; \
-	else \
-		echo "  ✗ Not running"; \
-	fi
+	@echo "Weaver (gRPC - port 50051):"
+	@pgrep -af "grpc_main.py" || echo "  not running"
+	@echo ""
+	@echo "Caddy (Reverse Proxy):"
+	@pgrep -af "caddy" || echo "  not running"
+	@echo ""
+	@echo "Note: Use scripts/dev for full development workflow (includes Kolam frontend)"
+
+clean: ## Clean build artifacts
+	@echo "Cleaning build artifacts..."
+	@rm -rf Loom/bin
+	@echo "✓ Cleaned"

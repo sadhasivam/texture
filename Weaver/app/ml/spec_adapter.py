@@ -1,4 +1,5 @@
 """Spec-driven algorithm adapter that builds metadata from YAML."""
+
 from typing import Any
 
 import pandas as pd
@@ -28,9 +29,7 @@ class SpecDrivenAdapter(AlgorithmAdapter):
 
     def __init__(self):
         if not hasattr(self, "spec_path"):
-            raise ValueError(
-                f"{self.__class__.__name__} must set 'spec_path' attribute"
-            )
+            raise ValueError(f"{self.__class__.__name__} must set 'spec_path' attribute")
         # Load spec on initialization
         self._load_spec()
 
@@ -100,9 +99,7 @@ class SpecDrivenAdapter(AlgorithmAdapter):
             name=metadata["displayName"],
             category=metadata["labels"]["category"],
             group=classification.get("group", metadata["labels"].get("category")),
-            subgroup=classification.get(
-                "subgroup", metadata["labels"].get("category")
-            ),
+            subgroup=classification.get("subgroup", metadata["labels"].get("category")),
             description=spec["description"],
             tags=spec.get("tags", []),
             difficulty=spec.get("difficulty", "beginner"),
@@ -122,6 +119,4 @@ class SpecDrivenAdapter(AlgorithmAdapter):
         parameters: dict,
     ) -> dict:
         """Must be implemented by subclass."""
-        raise NotImplementedError(
-            f"{self.__class__.__name__} must implement run() method"
-        )
+        raise NotImplementedError(f"{self.__class__.__name__} must implement run() method")

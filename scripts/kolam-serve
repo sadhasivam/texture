@@ -1,0 +1,29 @@
+#!/bin/bash
+# Serve Kolam frontend (dev mode)
+set -e
+
+cd "$(dirname "$0")/../Kolam"
+
+# Check if already running
+if lsof -i :5173 > /dev/null 2>&1; then
+    echo "⚠️  Kolam already running on port 5173"
+    exit 1
+fi
+
+echo "Starting Kolam dev server on port 5173..."
+pnpm run dev > /tmp/kolam.log 2>&1 &
+KOLAM_PID=$!
+
+# Wait for startup
+sleep 2
+
+# Check if started successfully
+if ps -p $KOLAM_PID > /dev/null; then
+    echo "✓ Kolam started (PID: $KOLAM_PID)"
+    echo "  URL: http://localhost:5173"
+    echo "  Logs: /tmp/kolam.log"
+else
+    echo "✗ Failed to start Kolam"
+    tail -10 /tmp/kolam.log
+    exit 1
+fi

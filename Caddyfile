@@ -1,28 +1,16 @@
-# Texture Production Server Configuration
-# Serves application via HTTP on port 8080
-# Access at: http://YOUR_SERVER_IP:8080
-#
-# IMPORTANT: Update the root path below to match your deployment directory
-# Example: /root/texture/Kolam/dist or /home/youruser/texture/Kolam/dist
-
-{
-	# Disable automatic HTTPS for IP address deployment
-	auto_https off
-}
-
-:80 {
+texture.sadhasivam.net {
 	encode gzip
 
-	# Proxy API requests to backend
-	route /api/* {
+	# Keep API on your server
+	handle /api/* {
 		reverse_proxy localhost:8000
 	}
 
-	# Serve static files with SPA fallback
-	route {
-		root * /root/texture/Kolam/dist
-		try_files {path} /index.html
-		file_server
+	# Send everything else to your Vercel app
+	handle {
+		reverse_proxy https://kolam-pjbisng2c-sadhasivamgmailcoms-projects.vercel.app {
+			header_up Host kolam-pjbisng2c-sadhasivamgmailcoms-projects.vercel.app
+		}
 	}
 
 	log {

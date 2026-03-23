@@ -3,8 +3,8 @@
 This registry automatically discovers and loads algorithms from YAML specs,
 eliminating the need to manually import and register each adapter.
 """
+
 import importlib
-from pathlib import Path
 
 from app.core.spec_loader import spec_loader
 from app.services.algorithm_registry import AlgorithmRegistry

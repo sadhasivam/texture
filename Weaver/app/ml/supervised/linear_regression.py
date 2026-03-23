@@ -1,4 +1,5 @@
 """Spec-driven Linear Regression - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -9,7 +10,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class LinearRegressionAdapter(SpecDrivenAdapter):
-    """"Linear Regression using YAML spec for metadata."""
+    """ "Linear Regression using YAML spec for metadata."""
 
     spec_path = "supervised/linear-regression.yaml"
 
@@ -20,7 +21,9 @@ class LinearRegressionAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
+        # Convert test_size from string to float if needed (gRPC sends strings)
+        test_size_raw = float(parameters.get("test_size", 0.2))
+        test_size = float(test_size_raw) if isinstance(test_size_raw, str) else test_size_raw
 
         # Prepare data
         X = dataframe[features]
@@ -64,12 +67,12 @@ class LinearRegressionAdapter(SpecDrivenAdapter):
         best_fit_values = np.polyval(trend_coef, indices)
 
         predicted_vs_actual_data = []
-        for idx, (actual, pred, fit) in enumerate(zip(y_test_sorted, y_pred_sorted, best_fit_values)):
-            predicted_vs_actual_data.append({
-                "actual": float(actual),
-                "predicted": float(pred),
-                "best_fit": float(fit)
-            })
+        for idx, (actual, pred, fit) in enumerate(
+            zip(y_test_sorted, y_pred_sorted, best_fit_values)
+        ):
+            predicted_vs_actual_data.append(
+                {"actual": float(actual), "predicted": float(pred), "best_fit": float(fit)}
+            )
 
         # Prepare residual plot data
         residuals = y_test - y_pred
@@ -89,7 +92,7 @@ class LinearRegressionAdapter(SpecDrivenAdapter):
 
         # Generate explanations
         explanations = [
-            f"The model explains about {r2*100:.1f}% of the variation in the target.",
+            f"The model explains about {r2 * 100:.1f}% of the variation in the target.",
             f"On average, predictions are off by {mae:.2f} units (MAE).",
         ]
 
@@ -101,9 +104,7 @@ class LinearRegressionAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
         return {
             "summary": {
@@ -138,4 +139,3 @@ class LinearRegressionAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

@@ -9,6 +9,7 @@ interface AlgorithmSidebarProps {
   onSelectAlgorithm: (metadata: AlgorithmMetadata) => void;
 }
 
+// Group -> Subgroup -> Algorithms
 interface GroupedAlgorithms {
   [group: string]: {
     [subgroup: string]: AlgorithmSummary[];
@@ -83,13 +84,21 @@ export default function AlgorithmSidebar({
   };
 
   const formatGroupName = (group: string) => {
+    if (group === 'supervised') return 'SUPERVISED';
+    if (group === 'unsupervised') return 'UNSUPERVISED';
+    if (group === 'anomaly_detection') return 'ANOMALY DETECTION';
     return group.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    ).join(' ').toUpperCase();
   };
 
   const formatSubgroupName = (subgroup: string) => {
-    if (subgroup === 'both') return 'Regression & Classification';
+    if (subgroup === 'both') return 'Both';
+    if (subgroup === 'classification') return 'Classification';
+    if (subgroup === 'regression') return 'Regression';
+    if (subgroup === 'clustering') return 'Clustering';
+    if (subgroup === 'dimensionality_reduction') return 'Dimensionality Reduction';
+    if (subgroup === 'anomaly_detection') return 'Anomaly Detection';
     return subgroup.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');

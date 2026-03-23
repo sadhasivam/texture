@@ -6,10 +6,8 @@ This script uses sklearn's built-in datasets to create clean CSVs
 that are perfect for testing Texture's algorithms.
 """
 
-import os
 from pathlib import Path
 
-import pandas as pd
 from sklearn.datasets import (
     fetch_california_housing,
     load_breast_cancer,
@@ -44,9 +42,7 @@ def main():
     iris = load_iris(as_frame=True)
     iris_df = iris.frame
     # Convert numeric target to species names
-    iris_df["target"] = iris_df["target"].map(
-        {0: "setosa", 1: "versicolor", 2: "virginica"}
-    )
+    iris_df["target"] = iris_df["target"].map({0: "setosa", 1: "versicolor", 2: "virginica"})
     output_path = dataset_dir / "iris.csv"
     iris_df.to_csv(output_path, index=False)
     print(f"   ✓ Saved to: {output_path}")

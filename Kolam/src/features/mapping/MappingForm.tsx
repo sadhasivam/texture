@@ -63,7 +63,7 @@ export default function MappingForm({
 
     runMutation.mutate({
       algorithm_id: algorithm.id,
-      dataset_id: dataset.dataset_id,
+      dataset_id: dataset.id,
       target_column: targetColumn || '',
       feature_columns: featureColumns,
       parameters,

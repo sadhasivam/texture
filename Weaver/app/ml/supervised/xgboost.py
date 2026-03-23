@@ -1,15 +1,25 @@
 """Spec-driven XGBoost - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBClassifier, XGBRegressor
 
 from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class XGBoostAdapter(SpecDrivenAdapter):
-    """"XGBoost using YAML spec for metadata."""
+    """ "XGBoost using YAML spec for metadata."""
 
     spec_path = "supervised/xgboost.yaml"
 
@@ -20,10 +30,11 @@ class XGBoostAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
-        n_estimators = parameters.get("n_estimators", 100)
-        learning_rate = parameters.get("learning_rate", 0.1)
-        max_depth = parameters.get("max_depth", 6)
+        # Convert parameters (may come as strings from form)
+        test_size = float(parameters.get("test_size", 0.2))
+        n_estimators = int(parameters.get("n_estimators", 100))
+        learning_rate = float(parameters.get("learning_rate", 0.1))
+        max_depth = int(parameters.get("max_depth", 6))
 
         # Prepare data
         X = dataframe[features]
@@ -36,6 +47,12 @@ class XGBoostAdapter(SpecDrivenAdapter):
 
         # Determine if regression or classification
         is_regression = pd.api.types.is_numeric_dtype(y)
+
+        # For classification, encode categorical targets to numeric
+        label_encoder = None
+        if not is_regression:
+            label_encoder = LabelEncoder()
+            y = label_encoder.fit_transform(y)
 
         # Split data
         if is_regression:
@@ -108,7 +125,7 @@ class XGBoostAdapter(SpecDrivenAdapter):
 
             explanations = [
                 f"XGBoost trained {n_estimators} trees using gradient boosting.",
-                f"The model explains {r2*100:.1f}% of the variation in the target.",
+                f"The model explains {r2 * 100:.1f}% of the variation in the target.",
                 "XGBoost is highly optimized and often outperforms other algorithms.",
             ]
 
@@ -117,9 +134,7 @@ class XGBoostAdapter(SpecDrivenAdapter):
         else:
             # Classification metrics
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(
-                y_test, y_pred, average="weighted", zero_division=0
-            )
+            precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
             recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
             f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
 
@@ -130,11 +145,11 @@ class XGBoostAdapter(SpecDrivenAdapter):
                 "f1": float(f1),
             }
 
-            # Class distribution
-            class_dist = y.value_counts()
+            # Class distribution (decode back to original labels)
+            y_original = pd.Series(label_encoder.inverse_transform(y))
+            class_dist = y_original.value_counts()
             class_distribution_data = [
-                {"class": str(cls), "count": int(count)}
-                for cls, count in class_dist.items()
+                {"class": str(cls), "count": int(count)} for cls, count in class_dist.items()
             ]
 
             charts = [
@@ -151,7 +166,7 @@ class XGBoostAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"XGBoost achieved {accuracy*100:.1f}% accuracy on the test set.",
+                f"XGBoost achieved {accuracy * 100:.1f}% accuracy on the test set.",
                 "XGBoost handles imbalanced data and missing values well.",
                 "Often used in Kaggle competitions due to high performance.",
             ]
@@ -161,9 +176,7 @@ class XGBoostAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
         return {
             "summary": {
@@ -179,4 +192,3 @@ class XGBoostAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

@@ -1,0 +1,29 @@
+#!/bin/bash
+# Start Weaver gRPC server
+set -e
+
+cd "$(dirname "$0")/../Weaver"
+
+# Check if already running
+if pgrep -f "grpc_main.py" > /dev/null; then
+    echo "⚠️  Weaver already running"
+    exit 1
+fi
+
+# Start server using .venv python directly
+echo "Starting Weaver gRPC server on port 50051..."
+.venv/bin/python grpc_main.py > /tmp/weaver_grpc.log 2>&1 &
+WEAVER_PID=$!
+
+# Wait for startup
+sleep 2
+
+# Check if started successfully
+if ps -p $WEAVER_PID > /dev/null; then
+    echo "✓ Weaver started (PID: $WEAVER_PID)"
+    echo "  Logs: /tmp/weaver_grpc.log"
+else
+    echo "✗ Failed to start Weaver"
+    tail -10 /tmp/weaver_grpc.log
+    exit 1
+fi

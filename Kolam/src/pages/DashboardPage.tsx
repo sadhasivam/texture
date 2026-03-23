@@ -4,6 +4,7 @@ import DatasetUpload from '../features/dataset/DatasetUpload';
 import DatasetPreview from '../features/dataset/DatasetPreview';
 import MappingForm from '../features/mapping/MappingForm';
 import ResultsPanel from '../features/results/ResultsPanel';
+import UserButton from '../components/UserButton';
 import type { AlgorithmMetadata } from '../types/algorithm';
 import type { DatasetUploadResponse } from '../types/dataset';
 import type { RunResponse } from '../types/run';
@@ -34,12 +35,7 @@ export default function DashboardPage() {
       <header className="app-header">
         <div className="app-branding">Texture</div>
         <div className="app-header-actions">
-          <div className="user-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
+          <UserButton />
         </div>
       </header>
 

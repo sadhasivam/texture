@@ -1,0 +1,8 @@
+#!/bin/bash
+# Stop Kolam frontend
+
+if lsof -ti :5173 | xargs kill -9 2>/dev/null; then
+    echo "✓ Kolam stopped"
+else
+    echo "⚠️  Kolam not running"
+fi

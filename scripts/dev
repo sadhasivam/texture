@@ -1,0 +1,41 @@
+#!/bin/bash
+# Start all services for development
+
+set -e
+
+SCRIPT_DIR="$(dirname "$0")"
+
+echo "🚀 Starting Texture development environment..."
+echo ""
+
+# Start Weaver (Python gRPC server)
+echo "1/3 Starting Weaver..."
+"$SCRIPT_DIR/weaver-start"
+echo ""
+
+# Wait for Weaver to be ready
+sleep 1
+
+# Start Wrap (Go API server)
+echo "2/3 Starting Loom..."
+"$SCRIPT_DIR/loom-start"
+echo ""
+
+# Start Kolam (Frontend)
+echo "3/3 Starting Kolam..."
+"$SCRIPT_DIR/kolam-serve"
+echo ""
+
+echo "✅ All services started!"
+echo ""
+echo "Services:"
+echo "  Weaver (gRPC): localhost:50051"
+echo "  Wrap (API):    http://localhost:8080"
+echo "  Kolam (UI):    http://localhost:5173"
+echo ""
+echo "Logs:"
+echo "  Weaver: /tmp/weaver_grpc.log"
+echo "  Wrap:   /tmp/wrap.log"
+echo "  Kolam:  /tmp/kolam.log"
+echo ""
+echo "To stop all: ./scripts/dev-stop"

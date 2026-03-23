@@ -1,0 +1,9 @@
+#!/bin/bash
+# Build Kolam frontend
+set -e
+
+cd "$(dirname "$0")/../Kolam"
+
+echo "Building Kolam..."
+pnpm run build
+echo "✓ Kolam built (output: dist/)"

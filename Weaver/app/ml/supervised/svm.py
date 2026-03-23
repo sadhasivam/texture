@@ -1,7 +1,16 @@
 """Spec-driven Support Vector Machine - minimal boilerplate."""
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error, mean_squared_error, precision_score, r2_score, recall_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC, SVR
@@ -10,7 +19,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class SVMAdapter(SpecDrivenAdapter):
-    """"Support Vector Machine using YAML spec for metadata."""
+    """ "Support Vector Machine using YAML spec for metadata."""
 
     spec_path = "supervised/svm.yaml"
 
@@ -21,9 +30,9 @@ class SVMAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
+        test_size = float(parameters.get("test_size", 0.2))
         kernel = parameters.get("kernel", "rbf")
-        C = parameters.get("C", 1.0)
+        C = float(parameters.get("C", 1.0))
 
         # Prepare data
         X = dataframe[features]
@@ -106,9 +115,9 @@ class SVMAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model explains about {r2*100:.1f}% of the variation in the target.",
+                f"The model explains about {r2 * 100:.1f}% of the variation in the target.",
                 f"On average, predictions are off by {mae:.2f} units (MAE).",
-                f"SVM used {n_support} support vectors ({support_ratio*100:.1f}% of training data).",
+                f"SVM used {n_support} support vectors ({support_ratio * 100:.1f}% of training data).",
                 f"Kernel: {kernel}, C={C}",
             ]
 
@@ -126,9 +135,7 @@ class SVMAdapter(SpecDrivenAdapter):
         else:
             # Classification metrics
             accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(
-                y_test, y_pred, average="weighted", zero_division=0
-            )
+            precision = precision_score(y_test, y_pred, average="weighted", zero_division=0)
             recall = recall_score(y_test, y_pred, average="weighted", zero_division=0)
             f1 = f1_score(y_test, y_pred, average="weighted", zero_division=0)
 
@@ -174,9 +181,9 @@ class SVMAdapter(SpecDrivenAdapter):
             ]
 
             explanations = [
-                f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
-                f"SVM used {n_support} support vectors ({support_ratio*100:.1f}% of training data).",
-                f"The hyperplane is found by maximizing the margin between classes.",
+                f"The model achieved {accuracy * 100:.1f}% accuracy on the test set.",
+                f"SVM used {n_support} support vectors ({support_ratio * 100:.1f}% of training data).",
+                "The hyperplane is found by maximizing the margin between classes.",
                 f"Kernel: {kernel}, C={C}",
             ]
 
@@ -211,4 +218,3 @@ class SVMAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

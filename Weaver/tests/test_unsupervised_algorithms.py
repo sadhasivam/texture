@@ -1,7 +1,9 @@
 """Test cases for unsupervised learning algorithms."""
-import pytest
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import pytest
+
 from app.services.spec_registry import spec_registry as registry
 
 
@@ -27,7 +29,12 @@ class TestKMeans:
             "feature_columns": ["feature_1", "feature_2"],
         }
 
-        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"n_clusters": 3})
+        errors = algorithm.validate_mapping(
+            schema["columns"],
+            mapping["target_column"],
+            mapping["feature_columns"],
+            {"n_clusters": 3},
+        )
         assert len(errors) == 0
 
     def test_validate_minimum_features(self, algorithm):
@@ -42,10 +49,17 @@ class TestKMeans:
             "feature_columns": ["feature_1"],
         }
 
-        errors = algorithm.validate_mapping(schema["columns"], mapping["target_column"], mapping["feature_columns"], {"n_clusters": 3})
+        errors = algorithm.validate_mapping(
+            schema["columns"],
+            mapping["target_column"],
+            mapping["feature_columns"],
+            {"n_clusters": 3},
+        )
         assert len(errors) > 0
 
-    def test_run_produces_clustering_metrics(self, algorithm, sample_clustering_data, sample_params_clustering):
+    def test_run_produces_clustering_metrics(
+        self, algorithm, sample_clustering_data, sample_params_clustering
+    ):
         """Test K-Means produces clustering metrics."""
         result = algorithm.run(
             sample_clustering_data,
@@ -60,7 +74,9 @@ class TestKMeans:
         assert result["metrics"]["inertia"] >= 0
         assert -1 <= result["metrics"]["silhouette_score"] <= 1
 
-    def test_run_produces_cluster_visualization(self, algorithm, sample_clustering_data, sample_params_clustering):
+    def test_run_produces_cluster_visualization(
+        self, algorithm, sample_clustering_data, sample_params_clustering
+    ):
         """Test K-Means produces cluster visualization."""
         result = algorithm.run(
             sample_clustering_data,
@@ -73,7 +89,9 @@ class TestKMeans:
         chart_names = [c["type"] for c in result["charts"]]
         assert "cluster_scatter" in chart_names
 
-    def test_run_produces_cluster_summary(self, algorithm, sample_clustering_data, sample_params_clustering):
+    def test_run_produces_cluster_summary(
+        self, algorithm, sample_clustering_data, sample_params_clustering
+    ):
         """Test K-Means produces cluster summary table."""
         result = algorithm.run(
             sample_clustering_data,
@@ -100,7 +118,9 @@ class TestKMeans:
             )
 
             assert "metrics" in result
-            summary_table = next((t for t in result["tables"] if t["type"] == "cluster_summary"), None)
+            summary_table = next(
+                (t for t in result["tables"] if t["type"] == "cluster_summary"), None
+            )
             assert len(summary_table["rows"]) == k
 
 
@@ -287,7 +307,7 @@ class TestIsolationForest:
         outliers = np.random.randn(10, 4) * 5  # Outliers with larger variance
         data = np.vstack([normal_data, outliers])
 
-        df = pd.DataFrame(data, columns=['feature_1', 'feature_2', 'feature_3', 'feature_4'])
+        df = pd.DataFrame(data, columns=["feature_1", "feature_2", "feature_3", "feature_4"])
 
         params = {"contamination": 0.1, "random_state": 42}
         result = algorithm.run(
@@ -367,7 +387,15 @@ class TestAlgorithmRegistry:
         algo = registry.get_adapter("linear_regression")
 
         metadata = algo.get_metadata()
-        required_fields = ["id", "name", "category", "description", "target", "features", "parameters"]
+        required_fields = [
+            "id",
+            "name",
+            "category",
+            "description",
+            "target",
+            "features",
+            "parameters",
+        ]
 
         for field in required_fields:
             assert hasattr(metadata, field), f"Missing required field: {field}"

@@ -1,0 +1,8 @@
+#!/bin/bash
+# Stop Weaver gRPC server
+
+if pkill -f "grpc_main.py"; then
+    echo "✓ Weaver stopped"
+else
+    echo "⚠️  Weaver not running"
+fi

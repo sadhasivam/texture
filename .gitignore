@@ -118,15 +118,18 @@ $RECYCLE.BIN/
 dist/
 dist-ssr/
 
-# Uploaded datasets
-Weaver/app/storage/uploads/
+# Uploaded datasets (shared storage)
+storage/
 
 # Test files
 Weaver/test_api.py
 Weaver/test_housing.csv
 
 # Downloaded datasets from scripts
-Weaver/data-set/
+storage/***
+data-set/***
+.vscode
+ENV_SETUP.md
 
 # Logs
 *.log
@@ -144,3 +147,4 @@ Caddyfile.bak
 # Vercel
 .vercel
 *.vercel.json.bak
+

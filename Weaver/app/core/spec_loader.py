@@ -1,5 +1,5 @@
 """Kubernetes-style YAML spec loader for algorithms."""
-import os
+
 from pathlib import Path
 from typing import Any
 
@@ -11,12 +11,14 @@ class SpecLoader:
 
     def __init__(self, base_path: str | None = None):
         if base_path is None:
-            # Auto-discover: algorithms dir is under Weaver/
+            # Auto-discover: algorithms dir is at texture root (sibling to Weaver/)
             # __file__ is in Weaver/app/core/spec_loader.py
             # Weaver dir is 2 levels up: ../../
+            # Texture root is 3 levels up: ../../../
             current_file = Path(__file__).resolve()
             weaver_root = current_file.parent.parent.parent
-            base_path = str(weaver_root / "algorithms")
+            texture_root = weaver_root.parent
+            base_path = str(texture_root / "algorithms")
 
         self.base_path = Path(base_path)
         self._cache: dict[str, dict[str, Any]] = {}
@@ -33,7 +35,7 @@ class SpecLoader:
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        with open(full_path, "r") as f:
+        with open(full_path) as f:
             spec = yaml.safe_load(f)
 
         # Validate kind
@@ -45,9 +47,7 @@ class SpecLoader:
             spec["ontology"] = self._load_ontology(spec["spec"]["ontologyRef"])
 
         if "dependencyRef" in spec.get("spec", {}):
-            spec["dependencies"] = self._load_dependencies(
-                spec["spec"]["dependencyRef"]
-            )
+            spec["dependencies"] = self._load_dependencies(spec["spec"]["dependencyRef"])
 
         # Cache and return
         self._cache[cache_key] = spec
@@ -60,13 +60,11 @@ class SpecLoader:
         if not full_path.exists():
             raise FileNotFoundError(f"Ontology spec not found: {full_path}")
 
-        with open(full_path, "r") as f:
+        with open(full_path) as f:
             ontology = yaml.safe_load(f)
 
         if ontology.get("kind") != "Ontology":
-            raise ValueError(
-                f"Expected kind 'Ontology', got: {ontology.get('kind')}"
-            )
+            raise ValueError(f"Expected kind 'Ontology', got: {ontology.get('kind')}")
 
         return ontology
 
@@ -77,13 +75,11 @@ class SpecLoader:
         if not full_path.exists():
             raise FileNotFoundError(f"Dependencies spec not found: {full_path}")
 
-        with open(full_path, "r") as f:
+        with open(full_path) as f:
             deps = yaml.safe_load(f)
 
         if deps.get("kind") != "Dependencies":
-            raise ValueError(
-                f"Expected kind 'Dependencies', got: {deps.get('kind')}"
-            )
+            raise ValueError(f"Expected kind 'Dependencies', got: {deps.get('kind')}")
 
         return deps
 
@@ -98,7 +94,7 @@ class SpecLoader:
                 for yaml_file in category_path.glob("*.yaml"):
                     # Load and verify it's an Algorithm kind
                     try:
-                        with open(yaml_file, "r") as f:
+                        with open(yaml_file) as f:
                             spec = yaml.safe_load(f)
                         if spec.get("kind") == "Algorithm":
                             # Store relative path

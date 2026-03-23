@@ -7,7 +7,7 @@ export interface ColumnSchema {
 }
 
 export interface DatasetUploadResponse {
-  dataset_id: string;
+  id: string;
   filename: string;
   row_count: number;
   column_count: number;
@@ -16,7 +16,7 @@ export interface DatasetUploadResponse {
 }
 
 export interface DatasetDetails {
-  dataset_id: string;
+  id: string;
   filename: string;
   row_count: number;
   column_count: number;

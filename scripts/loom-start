@@ -1,0 +1,35 @@
+#!/bin/bash
+# Start Wrap Go webserver
+set -e
+
+cd "$(dirname "$0")/../Loom"
+
+# Check if already running
+if pgrep -f "loom serve" > /dev/null; then
+    echo "⚠️  Loom already running"
+    exit 1
+fi
+
+# Build binary
+echo "Building Loom..."
+go build -o bin/loom ./cmd/loom
+
+# Start server in background
+echo "Starting Loom server on port 8080..."
+./bin/loom serve > /tmp/loom.log 2>&1 &
+LOOM_PID=$!
+
+# Wait for startup
+sleep 2
+
+# Check if started successfully
+if ps -p $LOOM_PID > /dev/null; then
+    echo "✓ Loom started (PID: $LOOM_PID)"
+    echo "  API: http://localhost:8080"
+    echo "  Docs: http://localhost:8080/docs"
+    echo "  Logs: /tmp/loom.log"
+else
+    echo "✗ Failed to start Loom"
+    tail -10 /tmp/loom.log
+    exit 1
+fi

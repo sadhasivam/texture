@@ -149,5 +149,53 @@
 }
 
 .subgroup-content {
-  padding-left: var(--space-8);
+  padding-left: var(--space-4);
+}
+
+/* Algorithm Model Groups */
+.algorithm-model-group {
+  margin-bottom: var(--space-1);
+}
+
+.model-group-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  background-color: var(--color-white);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.model-group-header:hover {
+  background-color: var(--color-gray-50);
+}
+
+.model-group-icon {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  width: 8px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.model-group-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-gray-600);
+  flex: 1;
+}
+
+.model-group-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-400);
+  min-width: 18px;
+  text-align: center;
+}
+
+.model-group-content {
+  padding-left: var(--space-4);
 }

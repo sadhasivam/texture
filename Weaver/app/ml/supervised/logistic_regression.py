@@ -1,4 +1,5 @@
 """Spec-driven Logistic Regression - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -8,7 +9,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class LogisticRegressionAdapter(SpecDrivenAdapter):
-    """"Logistic Regression using YAML spec for metadata."""
+    """ "Logistic Regression using YAML spec for metadata."""
 
     spec_path = "supervised/logistic-regression.yaml"
 
@@ -19,7 +20,7 @@ class LogisticRegressionAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        test_size = parameters.get("test_size", 0.2)
+        test_size = float(parameters.get("test_size", 0.2))
 
         # Prepare data
         X = dataframe[features]
@@ -97,14 +98,12 @@ class LogisticRegressionAdapter(SpecDrivenAdapter):
 
         # Generate explanations
         explanations = [
-            f"The model achieved {accuracy*100:.1f}% accuracy on the test set.",
+            f"The model achieved {accuracy * 100:.1f}% accuracy on the test set.",
             f"Overall F1-score is {f1:.3f}, balancing precision and recall.",
         ]
 
         if len(classes) == 2:
-            explanations.append(
-                "This is a binary classification problem with two target classes."
-            )
+            explanations.append("This is a binary classification problem with two target classes.")
         else:
             explanations.append(
                 f"This is a multi-class classification problem with {len(classes)} target classes."
@@ -113,9 +112,7 @@ class LogisticRegressionAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before training."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before training.")
 
         return {
             "summary": {
@@ -151,4 +148,3 @@ class LogisticRegressionAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

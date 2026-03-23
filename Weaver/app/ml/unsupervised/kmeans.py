@@ -1,4 +1,5 @@
 """Spec-driven K-Means Clustering - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.cluster import KMeans as SklearnKMeans
 from sklearn.metrics import silhouette_score
@@ -7,7 +8,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class KMeansAdapter(SpecDrivenAdapter):
-    """"K-Means Clustering using YAML spec for metadata."""
+    """ "K-Means Clustering using YAML spec for metadata."""
 
     spec_path = "unsupervised/kmeans.yaml"
 
@@ -18,9 +19,9 @@ class KMeansAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        n_clusters = parameters.get("n_clusters", 3)
-        max_iter = parameters.get("max_iter", 300)
-        random_state = parameters.get("random_state", 42)
+        n_clusters = int(parameters.get("n_clusters", 3))
+        max_iter = int(parameters.get("max_iter", 300))
+        random_state = int(parameters.get("random_state", 42))
 
         # Prepare data
         X = dataframe[features]
@@ -29,9 +30,7 @@ class KMeansAdapter(SpecDrivenAdapter):
         X = X.dropna()
 
         # Train K-Means
-        model = SklearnKMeans(
-            n_clusters=n_clusters, max_iter=max_iter, random_state=random_state
-        )
+        model = SklearnKMeans(n_clusters=n_clusters, max_iter=max_iter, random_state=random_state)
         cluster_labels = model.fit_predict(X)
 
         # Calculate metrics
@@ -52,20 +51,24 @@ class KMeansAdapter(SpecDrivenAdapter):
         # Cluster scatter plot (use first 2 features for visualization)
         scatter_data = []
         for idx, row in X.iterrows():
-            scatter_data.append({
-                "x": float(row[features[0]]),
-                "y": float(row[features[1]] if len(features) > 1 else row[features[0]]),
-                "cluster": int(cluster_labels[X.index.get_loc(idx)]),
-            })
+            scatter_data.append(
+                {
+                    "x": float(row[features[0]]),
+                    "y": float(row[features[1]] if len(features) > 1 else row[features[0]]),
+                    "cluster": int(cluster_labels[X.index.get_loc(idx)]),
+                }
+            )
 
         # Cluster centers
         centers_data = []
         for i, center in enumerate(model.cluster_centers_):
-            centers_data.append({
-                "x": float(center[0]),
-                "y": float(center[1] if len(center) > 1 else center[0]),
-                "cluster": int(i),
-            })
+            centers_data.append(
+                {
+                    "x": float(center[0]),
+                    "y": float(center[1] if len(center) > 1 else center[0]),
+                    "cluster": int(i),
+                }
+            )
 
         charts = [
             {
@@ -81,11 +84,13 @@ class KMeansAdapter(SpecDrivenAdapter):
         for cluster_id in range(n_clusters):
             cluster_mask = cluster_labels == cluster_id
             cluster_size = int(cluster_mask.sum())
-            cluster_summary.append({
-                "cluster": cluster_id,
-                "size": cluster_size,
-                "percentage": float(cluster_size / len(cluster_labels) * 100),
-            })
+            cluster_summary.append(
+                {
+                    "cluster": cluster_id,
+                    "size": cluster_size,
+                    "percentage": float(cluster_size / len(cluster_labels) * 100),
+                }
+            )
 
         tables = [
             {
@@ -108,9 +113,7 @@ class KMeansAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before clustering."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before clustering.")
 
         if n_clusters >= len(X):
             warnings.append(
@@ -130,4 +133,3 @@ class KMeansAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-

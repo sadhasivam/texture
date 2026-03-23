@@ -10,13 +10,13 @@ interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ result }: ResultsPanelProps) {
-  const hasSplitData = result.summary.train_rows != null && result.summary.test_rows != null;
+  const hasSplitData = result.summary?.train_rows != null && result.summary?.test_rows != null;
 
   return (
     <div className="results-panel">
       <div className="results-header">
         <h2>Results</h2>
-        {hasSplitData && (
+        {hasSplitData && result.summary && (
           <div className="results-summary">
             <span className="summary-item">
               <strong>{result.summary.train_rows}</strong> training rows
@@ -29,11 +29,11 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
         )}
       </div>
 
-      {result.warnings.length > 0 && <WarningsPanel warnings={result.warnings} />}
+      {result.warnings && result.warnings.length > 0 && <WarningsPanel warnings={result.warnings} />}
 
-      <MetricsCards metrics={result.metrics} />
+      {result.metrics && <MetricsCards metrics={result.metrics} />}
 
-      {result.charts.length > 0 && (
+      {result.charts && result.charts.length > 0 && (
         <div className="charts-section">
           <h3>Visualizations</h3>
           <div className="charts-grid">
@@ -44,11 +44,11 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
         </div>
       )}
 
-      {result.explanations.length > 0 && (
+      {result.explanations && result.explanations.length > 0 && (
         <ExplanationPanel explanations={result.explanations} />
       )}
 
-      {result.tables.length > 0 && (
+      {result.tables && result.tables.length > 0 && (
         <div className="tables-section">
           <h3>Details</h3>
           {result.tables.map((table, idx) => (

@@ -1,4 +1,5 @@
 """Spec-driven t-SNE - minimal boilerplate."""
+
 import pandas as pd
 from sklearn.manifold import TSNE as SklearnTSNE
 
@@ -6,7 +7,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 
 
 class TSNEAdapter(SpecDrivenAdapter):
-    """"t-SNE using YAML spec for metadata."""
+    """ "t-SNE using YAML spec for metadata."""
 
     spec_path = "unsupervised/tsne.yaml"
 
@@ -17,9 +18,9 @@ class TSNEAdapter(SpecDrivenAdapter):
         features: list[str],
         parameters: dict,
     ) -> dict:
-        n_components = parameters.get("n_components", 2)
-        perplexity = parameters.get("perplexity", 30.0)
-        learning_rate = parameters.get("learning_rate", 200.0)
+        n_components = int(parameters.get("n_components", 2))
+        perplexity = float(parameters.get("perplexity", 30.0))
+        learning_rate = float(parameters.get("learning_rate", 200.0))
 
         # Prepare data
         X = dataframe[features]
@@ -86,14 +87,10 @@ class TSNEAdapter(SpecDrivenAdapter):
         warnings = []
         if len(X) < len(dataframe):
             dropped = len(dataframe) - len(X)
-            warnings.append(
-                f"Dropped {dropped} rows with missing values before t-SNE."
-            )
+            warnings.append(f"Dropped {dropped} rows with missing values before t-SNE.")
 
         if perplexity != parameters.get("perplexity", 30.0):
-            warnings.append(
-                f"Perplexity adjusted to {perplexity:.0f} to fit dataset size."
-            )
+            warnings.append(f"Perplexity adjusted to {perplexity:.0f} to fit dataset size.")
 
         if len(X) < 50:
             warnings.append(
@@ -114,4 +111,3 @@ class TSNEAdapter(SpecDrivenAdapter):
             "explanations": explanations,
             "warnings": warnings,
         }
-
