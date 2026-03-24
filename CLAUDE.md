@@ -1,12 +1,15 @@
-Below is a build-ready specification you can hand to Claude, Codex, or Gemini.
+Below is the specification for Texture, the algorithm-first ML learning studio.
 
 # Texture Specification
 
 ## 1. Product Identity
 
 **Product name:** Texture
-**Frontend app name:** Kolam
-**Backend app name:** Weaver
+
+**Service Architecture:**
+- **Kolam** - React frontend (user interface)
+- **Loom** - Go HTTP gateway (API layer, authentication, orchestration)
+- **Weaver** - Python gRPC server (ML compute engine)
 
 **Product type:**
 A minimal, algorithm-first machine learning learning studio for tabular CSV data.
@@ -16,6 +19,49 @@ Let a user pick one ML algorithm, upload one CSV dataset, inspect the discovered
 
 **Non-goals:**
 Texture is not an AutoML platform, notebook system, workflow canvas, feature store, deployment platform, or enterprise MLops suite.
+
+---
+
+## 1.1 System Architecture
+
+Texture is built as a three-tier microservices architecture:
+
+```
+Browser (Kolam)
+     ↓ HTTP/REST + JWT
+Loom (API Gateway)
+     ↓ gRPC + Protocol Buffers
+Weaver (ML Compute)
+```
+
+### Kolam - Frontend
+- React 19 + TypeScript + Rsbuild
+- Clerk authentication integration
+- TanStack Query for server state
+- Recharts for visualizations
+- Runs on port 3000 (dev)
+
+### Loom - API Gateway
+- Go 1.26.1 + Chi router + Huma v2
+- REST API endpoints (`/api/v1/*`)
+- Clerk JWT authentication
+- CSV file upload handling
+- Algorithm metadata serving (from YAML specs)
+- gRPC client to Weaver
+- Runs on port 8080
+
+### Weaver - ML Compute Engine
+- Python 3.14 + gRPC server
+- Schema inference from CSV
+- Algorithm execution (scikit-learn, XGBoost)
+- Auto-discovery of algorithms from YAML specs
+- Metric calculation and chart data generation
+- Runs on port 50051
+
+### Service Contracts
+- Protocol Buffers for gRPC (`/proto` directory)
+- YAML specifications for algorithms (`/algorithms` directory)
+- REST/JSON for frontend communication
 
 ---
 
@@ -69,48 +115,72 @@ A learner opens Texture, sees a right-side list of algorithms, selects one, uplo
 
 ---
 
-## 5. Scope for V1
+## 5. Current Feature Scope
 
 ### Included
 
-- right-side algorithm catalog
-- algorithm metadata API
-- CSV upload
-- schema discovery
-- preview rows
-- column mapping UI
-- run model action
-- result metrics
-- chart rendering
-- plain-language explanation panel
-- warning/validation messages
+- User authentication (Clerk JWT-based)
+- Algorithm catalog (14 algorithms)
+- Algorithm metadata API
+- CSV upload (via Loom gateway)
+- Schema discovery (via Weaver gRPC)
+- Preview rows
+- Column mapping UI
+- Algorithm execution
+- Result metrics
+- Interactive chart rendering (Recharts)
+- Plain-language explanation panel
+- Warning/validation messages
+- YAML-based algorithm specifications
+- Auto-discovery of algorithms
 
 ### Excluded
 
-- authentication
-- collaboration
-- saved workspaces
-- user accounts
-- notebooks
-- drag-and-drop workflow builder
-- background jobs
-- model deployment
-- experiment versioning
-- testcase generation
-- README generation
+- Collaboration features
+- Persistent workspaces
+- Notebooks
+- Drag-and-drop workflow builder
+- Background jobs
+- Model deployment
+- Experiment versioning
+- Automated test generation
+- Multi-file uploads
+- Dataset versioning
 
 ---
 
-## 6. Supported Algorithms for V1
+## 6. Supported Algorithms
 
-Start with only these:
+Texture supports 15 machine learning algorithms across supervised learning, unsupervised learning, and anomaly detection.
+
+### Supervised Learning (10 algorithms)
 
 1. Linear Regression
 2. Logistic Regression
 3. Decision Tree
 4. Random Forest
+5. Support Vector Machine (SVM)
+6. K-Nearest Neighbors (KNN)
+7. Naive Bayes
+8. Gradient Boosting
+9. AdaBoost
+10. XGBoost
 
-These four are enough to teach regression, classification, interpretability, and ensemble basics.
+### Unsupervised Learning (4 algorithms)
+
+**Clustering:**
+11. K-Means
+12. DBSCAN
+
+**Dimensionality Reduction:**
+13. Principal Component Analysis (PCA)
+14. t-SNE
+
+### Anomaly Detection (1 algorithm)
+
+15. Isolation Forest
+
+All algorithms are defined via YAML specifications in the `/algorithms` directory and auto-discovered at runtime by both Loom and Weaver.
 
 ---
 
@@ -133,64 +203,106 @@ When the user selects an algorithm, Kolam must call a detail endpoint to fetch f
 
 ## 7.2 Algorithm Metadata Contract
 
-Each algorithm must expose metadata that drives the UI.
+Each algorithm is defined via a YAML specification in the `/algorithms` directory using a Kubernetes-style manifest format.
 
-Required fields:
+**Example YAML specification** (`algorithms/supervised/linear-regression.yaml`):
 
-```json
-{
-  "id": "linear_regression",
-  "name": "Linear Regression",
-  "category": "regression",
-  "description": "Predicts a continuous numeric target from one or more features.",
-  "target": {
-    "required": true,
-    "allowed_types": ["numeric"],
-    "cardinality": "single"
-  },
-  "features": {
-    "required": true,
-    "min_columns": 1,
-    "max_columns": null,
-    "allowed_types": ["numeric", "categorical_encoded"]
-  },
-  "parameters": [
-    {
-      "name": "test_size",
-      "type": "float",
-      "default": 0.2,
-      "label": "Test size"
-    }
-  ],
-  "outputs": {
-    "metrics": ["r2", "mae", "rmse"],
-    "charts": ["predicted_vs_actual", "residual_plot"],
-    "tables": ["coefficients"]
-  },
-  "validation_rules": [
-    "Target must be numeric",
-    "At least one feature column is required"
-  ]
-}
+```yaml
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: linear-regression
+  displayName: Linear Regression
+  namespace: supervised-learning
+  labels:
+    difficulty: beginner
+    model-family: linear
+    category: regression
+spec:
+  ontologyRef: base/ontology-supervised-regression.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: linear_regression
+  description: Predicts a continuous numeric target from one or more features.
+  tags:
+    - interpretable
+    - beginner-friendly
+  difficulty: beginner
+  modelFamily: linear
+  target:
+    required: true
+    types: [numeric]
+    cardinality: single
+  features:
+    required: true
+    types: [numeric]
+    min: 1
+  parameters:
+    - name: test_size
+      type: float
+      default: 0.2
+      label: Test size
+  outputs:
+    metrics:
+      - name: r2
+        displayName: R² Score
+      - name: mae
+        displayName: Mean Absolute Error
+    visualizations:
+      - name: predicted_vs_actual
+        defaultChart: scatter
+  validationRules:
+    - Target must be numeric
+    - At least one feature column is required
+  handler:
+    module: app.ml.supervised.linear_regression
+    class: LinearRegressionAdapter
 ```
 
-The frontend must render forms from this metadata rather than hardcoding per-algorithm screens.
+**Ontology reference** (`algorithms/base/ontology-supervised-regression.yaml`):
+
+```yaml
+apiVersion: texture.ml/v1
+kind: Ontology
+metadata:
+  name: supervised-regression
+spec:
+  classification:
+    group: supervised
+    subgroup: regression
+    category: regression
+```
+
+**Auto-discovery process:**
+1. Both Loom and Weaver scan `/algorithms` directory at startup
+2. Load all YAML files with `kind: Algorithm`
+3. Resolve ontology and dependency references
+4. Register algorithms in memory
+5. Serve metadata to frontend
+
+The frontend renders forms dynamically from this metadata rather than hardcoding per-algorithm screens.
 
 ---
 
 ## 7.3 Dataset Upload
 
-The user must be able to upload a CSV file.
+The user uploads a CSV file via the Kolam frontend.
 
-The backend must:
+**Upload flow:**
+1. Kolam sends multipart form data to Loom (`POST /api/v1/datasets/upload`)
+2. Loom receives file and validates size (max 50MB)
+3. Loom sends CSV bytes to Weaver via gRPC (`InferSchema`)
+4. Weaver parses CSV, infers schema, generates preview
+5. Loom caches dataset metadata and file bytes
+6. Loom returns schema information to Kolam
 
-- parse the CSV
-- infer schema
-- compute row count and column count
-- generate sample rows
-- identify missing values and simple type inference
+**Weaver must:**
+- Parse CSV with pandas
+- Infer column types (numeric, categorical, boolean, datetime, text, identifier)
+- Compute row count and column count
+- Generate sample preview rows
+- Identify missing values and unique counts per column
 
-The frontend must display:
+**Kolam must display:**
 
 - dataset filename
 - row count
@@ -285,50 +397,51 @@ Charts must be interactive when practical.
 
 ```text
 Texture/
-├─ Kolam/
-└─ Weaver/
+├─ algorithms/           # YAML algorithm specifications
+│  ├─ base/             # Ontologies and dependencies
+│  ├─ supervised/       # Supervised algorithm specs
+│  └─ unsupervised/     # Unsupervised algorithm specs
+├─ proto/               # Protocol Buffer definitions
+│  ├─ common.proto
+│  └─ weaver.proto
+├─ Kolam/               # React frontend
+├─ Loom/                # Go API gateway
+└─ Weaver/              # Python ML compute engine
 ```
 
 ---
 
 ## 8.2 Frontend Requirements: Kolam
 
-Kolam must be built with:
+**Core stack:**
+- React 19.2.3
+- TypeScript 5.9.3
+- Rsbuild 1.7.1 (build tool powered by Rspack)
+- pnpm (package manager)
+- Node.js >= 24.13.1
 
-- React
-- TypeScript
-- Rsbuild
-- pnpm
+**Key libraries:**
+- `@clerk/react` 6.1.2 - Authentication
+- `@tanstack/react-query` 5.90.21 - Server state management
+- `@tanstack/react-table` 8.21.3 - Data tables
+- `recharts` 3.8.0 - Charts and visualizations
 
-Rsbuild is a modern build tool powered by Rspack, designed to keep configuration simple while providing fast builds and optimized production output. Current docs state Rsbuild supports React and requires Node.js 18.12.0 or higher for current versions. ([Rsbuild][2])
+### Design requirements
 
-### Frontend design requirements
+- Dashboard layout with right sidebar for algorithms
+- Main workspace for upload, schema, mapping, and results
+- Design tokens inspired by Uber Base
+- Minimalist component surface
+- Fast, responsive interactions
 
-- dashboard layout
-- right sidebar for algorithms
-- main workspace for upload, schema, mapping, and results
-- design tokens inspired by Uber Base
-- minimalist component surface
-- no heavy global state unless necessary
+### Architectural requirements
 
-### Frontend recommended libraries
-
-- React
-- TypeScript
-- Rsbuild
-- pnpm
-- TanStack Query for server state
-- Zustand only if local cross-component state becomes necessary
-- Recharts for charts
-- TanStack Table for schema/data preview
-
-### Frontend architectural requirements
-
-- metadata-driven rendering
-- component composition over abstraction-heavy patterns
-- keep files small and obvious
-- avoid over-engineering
-- no test setup in V1
+- Metadata-driven rendering (from YAML specs via API)
+- Component composition over abstraction-heavy patterns
+- Keep files small and obvious
+- Avoid over-engineering
+- No global state management (TanStack Query handles server state)
+- No automated tests yet (manual testing for now)
 
 ### Frontend folder layout
 
@@ -379,151 +492,234 @@ Texture/
 
 ---
 
-## 8.3 Backend Requirements: Weaver
+## 8.3 API Gateway Requirements: Loom
 
-Weaver must be built with:
+**Core stack:**
+- Go 1.26.1
+- Chi v5.2.5 (HTTP router)
+- Huma v2.37.2 (OpenAPI framework)
+- Cobra v1.10.2 (CLI)
+- Viper v1.21.0 (configuration)
 
-- Python
-- uv
-- FastAPI
-- pyproject.toml
-- Ruff
+**Key libraries:**
+- `github.com/clerk/clerk-sdk-go/v2` v2.5.1 - Authentication
+- `google.golang.org/grpc` v1.79.3 - gRPC client
+- `google.golang.org/protobuf` v1.36.11 - Protocol Buffers
+- `github.com/go-chi/cors` v1.2.2 - CORS middleware
+- `gopkg.in/yaml.v3` - YAML parsing for algorithm specs
 
-FastAPI describes itself as a modern, high-performance web framework based on Python type hints, and it automatically generates OpenAPI schema and docs. FastAPI also documents a recommended multi-file structure for larger apps. ([FastAPI][3])
+### Gateway responsibilities
 
-uv is Astral’s Python project and package tool, with official docs recommending it for installation and workflow use. Ruff is Astral’s fast linter and formatter and can be configured in `pyproject.toml`. ([Astral Docs][4])
+- Serve REST API endpoints (`/api/v1/*`)
+- JWT authentication and authorization (Clerk)
+- HTTP file upload handling (CSV files)
+- Load and serve algorithm metadata from YAML specs
+- Route computation requests to Weaver via gRPC
+- Cache dataset metadata and file bytes
+- CORS configuration for frontend
 
-### Backend responsibilities
+### Architectural requirements
 
-- serve algorithm metadata
-- accept dataset upload
-- infer schema
-- validate column selection
-- run ML algorithms
-- compute metrics
-- emit chart-friendly result payloads
-- support frontend CORS for local dev
+- Clean HTTP handlers using Chi router
+- OpenAPI documentation via Huma
+- gRPC client connection pool to Weaver
+- Middleware for auth, CORS, logging
+- No database (stateless gateway)
+- Configuration via environment variables
 
-### Backend recommended libraries
-
-- FastAPI
-- Uvicorn
-- pandas
-- numpy
-- scikit-learn
-- python-multipart
-- pydantic
-- uv
-- ruff
-
-### Backend architectural requirements
-
-- thin routes
-- service layer for business logic
-- algorithm registry
-- adapters per algorithm
-- schemas defined in Pydantic
-- no database in V1
-- uploaded files may be stored temporarily on local disk
-- no auth in V1
-- no tests in V1
-
-### Backend folder layout
+### Folder layout
 
 ```text
-Texture/
-└─ Weaver/
-   ├─ pyproject.toml
-   ├─ .python-version
-   └─ app/
-      ├─ main.py
-      ├─ api/
-      │  └─ v1/
-      │     ├─ algorithms.py
-      │     ├─ datasets.py
-      │     ├─ runs.py
-      │     └─ health.py
-      ├─ core/
-      │  ├─ config.py
-      │  └─ cors.py
-      ├─ schemas/
-      │  ├─ algorithm.py
-      │  ├─ dataset.py
-      │  └─ run.py
-      ├─ services/
-      │  ├─ algorithm_registry.py
-      │  ├─ dataset_service.py
-      │  ├─ schema_service.py
-      │  ├─ run_service.py
-      │  └─ explanation_service.py
-      ├─ ml/
-      │  ├─ base.py
-      │  ├─ linear_regression.py
-      │  ├─ logistic_regression.py
-      │  ├─ decision_tree.py
-      │  └─ random_forest.py
-      └─ storage/
-         └─ uploads/
+Loom/
+├─ cmd/loom/             # CLI entry point
+│  ├─ main.go
+│  ├─ serve.go
+│  └─ version.go
+├─ internal/
+│  ├─ api/               # HTTP handlers
+│  │  ├─ algorithms.go
+│  │  ├─ datasets.go
+│  │  ├─ runs.go
+│  │  ├─ auth.go
+│  │  └─ health.go
+│  ├─ config/            # Configuration
+│  │  └─ config.go
+│  ├─ grpc/              # gRPC client
+│  │  └─ client.go
+│  ├─ middleware/        # HTTP middleware
+│  │  ├─ clerk.go
+│  │  └─ cors.go
+│  ├─ server/            # Server setup
+│  │  └─ server.go
+│  └─ services/          # Business logic
+│     ├─ algorithm_service.go
+│     └─ dataset_service.go
+├─ pb/                   # Generated protobuf code
+│  ├─ common_pb2.go
+│  └─ weaver_pb2.go
+├─ go.mod
+└─ go.sum
+```
+
+---
+
+## 8.4 Compute Engine Requirements: Weaver
+
+**Core stack:**
+- Python 3.14
+- gRPC 1.78.0 (server)
+- grpcio-tools 1.78.0 (protobuf compiler)
+- uv (package manager)
+- Ruff (linting and formatting via `pyproject.toml`)
+
+**Key libraries:**
+- pandas 2.2.0 - Data manipulation
+- numpy 2.0.0 - Numerical computing
+- scikit-learn 1.5.0 - ML algorithms
+- xgboost 2.0.0 - Gradient boosting
+- pydantic 2.9.0 - Data validation
+- pyyaml 6.0.3 - YAML parsing
+
+### Compute engine responsibilities
+
+- Serve gRPC API (`WeaverService`)
+- Auto-discover algorithms from YAML specs
+- Infer schema from CSV data
+- Validate run requests
+- Execute ML algorithms
+- Calculate evaluation metrics
+- Generate chart-ready data
+- Return structured results via Protocol Buffers
+
+### Architectural requirements
+
+- gRPC server with Protocol Buffers
+- Spec-driven algorithm adapters
+- Auto-discovery and registration
+- Minimal adapter boilerplate (YAML drives metadata)
+- Pydantic schemas for validation
+- No database
+- No authentication (protected by Loom gateway)
+- No automated tests yet
+
+### Folder layout
+
+```text
+Weaver/
+├─ pyproject.toml
+├─ .python-version
+└─ app/
+   ├─ grpc_server/          # gRPC server
+   │  ├─ server.py
+   │  └─ handlers.py
+   ├─ core/                 # Core utilities
+   │  └─ spec_loader.py     # YAML spec loader
+   ├─ schemas/              # Pydantic schemas
+   │  ├─ algorithm.py
+   │  ├─ dataset.py
+   │  └─ run.py
+   ├─ services/             # Business logic
+   │  ├─ algorithm_registry.py
+   │  ├─ spec_registry.py   # Auto-discovery
+   │  └─ schema_service.py
+   ├─ ml/                   # Algorithm adapters
+   │  ├─ base.py            # Base adapter
+   │  ├─ base_validator.py
+   │  ├─ spec_adapter.py    # Spec-driven base
+   │  ├─ supervised/
+   │  │  ├─ linear_regression.py
+   │  │  ├─ logistic_regression.py
+   │  │  ├─ decision_tree.py
+   │  │  ├─ random_forest.py
+   │  │  ├─ svm.py
+   │  │  ├─ knn.py
+   │  │  ├─ naive_bayes.py
+   │  │  ├─ gradient_boosting.py
+   │  │  ├─ adaboost.py
+   │  │  └─ xgboost.py
+   │  └─ unsupervised/
+   │     ├─ kmeans.py
+   │     ├─ dbscan.py
+   │     ├─ pca.py
+   │     ├─ tsne.py
+   │     └─ isolation_forest.py
+   └─ pb/                   # Generated protobuf code
+      ├─ common_pb2.py
+      ├─ weaver_pb2.py
+      └─ weaver_pb2_grpc.py
 ```
 
 ---
 
 ## 9. API Requirements
 
-## 9.1 Health
-
-`GET /api/v1/health`
-
-Response:
-
-```json
-{
-  "status": "ok"
-}
-```
+Texture has two API layers:
+1. **Loom REST API** - Public HTTP/JSON API for frontend
+2. **Weaver gRPC API** - Internal gRPC API for ML computation
 
 ---
 
-## 9.2 List Algorithms
+## 9.1 Loom REST API
+
+All REST endpoints are under `/api/v1/` and require Clerk JWT authentication (except health).
+
+### Health Check
+
+`GET /api/v1/health`
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "environment": "development"
+}
+```
+
+### List Algorithms
 
 `GET /api/v1/algorithms`
 
-Response:
+Returns summary list of all available algorithms (loaded from YAML specs).
 
+**Response:**
 ```json
 [
   {
     "id": "linear_regression",
     "name": "Linear Regression",
     "category": "regression",
-    "description": "Predict a continuous numeric value."
+    "group": "supervised",
+    "subgroup": "regression",
+    "description": "Predicts a continuous numeric target",
+    "tags": ["interpretable", "beginner-friendly"],
+    "difficulty": "beginner",
+    "model_family": "linear"
   }
 ]
 ```
 
----
-
-## 9.3 Get Algorithm Metadata
+### Get Algorithm Metadata
 
 `GET /api/v1/algorithms/{algorithm_id}`
 
-Returns full metadata contract.
+Returns full metadata for a specific algorithm (from YAML spec).
 
----
-
-## 9.4 Upload Dataset
+### Upload Dataset
 
 `POST /api/v1/datasets/upload`
 
-Form-data:
+**Request:** `multipart/form-data` with file field
 
-- file
+**Flow:**
+1. Loom receives file
+2. Loom calls Weaver gRPC `InferSchema`
+3. Loom caches dataset
+4. Loom returns schema to frontend
 
-Response:
-
+**Response:**
 ```json
 {
-  "dataset_id": "ds_001",
+  "dataset_id": "uuid-here",
   "filename": "housing.csv",
   "row_count": 506,
   "column_count": 6,
@@ -533,51 +729,48 @@ Response:
       "inferred_type": "numeric",
       "missing_count": 0,
       "unique_count": 320,
-      "sample_values": [1200, 1500, 1800]
+      "sample_values": ["1200", "1500", "1800"]
     }
   ],
   "preview_rows": [
-    {
-      "area": 1200,
-      "price": 220000
-    }
+    {"area": "1200", "price": "220000"}
   ]
 }
 ```
 
----
-
-## 9.5 Get Dataset Details
+### Get Dataset Details
 
 `GET /api/v1/datasets/{dataset_id}`
 
-Returns upload metadata, schema, and preview.
+Returns cached dataset metadata, schema, and preview.
 
----
-
-## 9.6 Run Algorithm
+### Execute Algorithm Run
 
 `POST /api/v1/runs`
 
-Request:
-
+**Request:**
 ```json
 {
   "algorithm_id": "linear_regression",
-  "dataset_id": "ds_001",
+  "dataset_id": "uuid-here",
   "target_column": "price",
   "feature_columns": ["area", "bedrooms"],
   "parameters": {
-    "test_size": 0.2
+    "test_size": "0.2"
   }
 }
 ```
 
-Response:
+**Flow:**
+1. Loom receives run request
+2. Loom loads cached CSV bytes
+3. Loom calls Weaver gRPC `ExecuteRun`
+4. Weaver executes algorithm and returns results
+5. Loom forwards results to frontend
 
+**Response:**
 ```json
 {
-  "run_id": "run_001",
   "status": "success",
   "summary": {
     "target_column": "price",
@@ -594,17 +787,23 @@ Response:
     {
       "type": "predicted_vs_actual",
       "title": "Predicted vs Actual",
-      "data": [{ "actual": 220000, "predicted": 228000 }]
+      "data": [
+        {"actual": 220000, "predicted": 228000, "best_fit": 225000}
+      ]
     }
   ],
   "tables": [
     {
       "type": "coefficients",
-      "rows": [{ "feature": "area", "coefficient": 145.2 }]
+      "rows": [
+        {"feature": "intercept", "coefficient": 50000.0},
+        {"feature": "area", "coefficient": 145.2}
+      ]
     }
   ],
   "explanations": [
-    "The model explains about 82% of the variation in the target."
+    "The model explains about 82.0% of the variation in the target.",
+    "On average, predictions are off by 18000.50 units (MAE)."
   ],
   "warnings": []
 }
@@ -612,28 +811,107 @@ Response:
 
 ---
 
-## 10. Internal Backend Design
+## 9.2 Weaver gRPC API
 
-## 10.1 Algorithm Registry
+Weaver exposes a gRPC service (`WeaverService`) for internal communication with Loom.
 
-Weaver must use a registry pattern.
+**Protocol Buffers:** Defined in `/proto/weaver.proto`
 
-Each algorithm adapter must implement a consistent contract.
+### Health Check
 
-Example interface:
+`rpc HealthCheck(Empty) returns (HealthResponse)`
+
+Returns service status, Python version, and available algorithms count.
+
+### Infer Schema
+
+`rpc InferSchema(InferSchemaRequest) returns (InferSchemaResponse)`
+
+**Request:**
+- `bytes dataset_csv` - Raw CSV data
+- `string dataset_id` - Optional tracking ID
+
+**Response:**
+- Dataset ID, filename, row/column counts
+- Column schemas (name, type, missing count, unique count, sample values)
+- Preview rows
+
+### Validate Run
+
+`rpc ValidateRun(ValidateRunRequest) returns (ValidateRunResponse)`
+
+Validates if a run can be executed based on algorithm requirements.
+
+### Execute Run
+
+`rpc ExecuteRun(ExecuteRunRequest) returns (ExecuteRunResponse)`
+
+**Request:**
+- `string algorithm_id`
+- `bytes dataset_csv` - Raw CSV data
+- `string target_column`
+- `repeated string feature_columns`
+- `map<string, string> parameters`
+- `string request_id` - For tracing
+
+**Response:**
+- Status (success/error)
+- Run summary
+- Metrics (map of metric name to value)
+- Charts (array of chart objects with data)
+- Tables (array of table objects with rows)
+- Explanations (array of strings)
+- Warnings (array of strings)
+- Error message (if failed)
+
+---
+
+## 10. Internal Design Patterns
+
+## 10.1 Spec-Driven Algorithm Registry
+
+Both Loom and Weaver use auto-discovery to load algorithms from YAML specifications at startup.
+
+**Weaver implementation:**
 
 ```python
-class AlgorithmAdapter:
-    id: str
-    name: str
-    category: str
+class SpecDrivenAdapter:
+    """Base adapter that loads metadata from YAML spec."""
+    spec_path: str  # e.g., "supervised/linear-regression.yaml"
 
-    def get_metadata(self) -> dict: ...
-    def validate_mapping(self, schema, target, features, parameters) -> list[str]: ...
-    def run(self, dataframe, target, features, parameters) -> dict: ...
+    def get_metadata(self) -> dict:
+        # Load from YAML spec
+        spec = spec_loader.load_algorithm(self.spec_path)
+        return spec
+
+    def run(self, dataframe, target, features, parameters) -> dict:
+        # Implemented by subclass
+        pass
 ```
 
-This keeps the UI metadata-driven and allows easy extension.
+**Algorithm adapter example:**
+
+```python
+from app.ml.spec_adapter import SpecDrivenAdapter
+
+class LinearRegressionAdapter(SpecDrivenAdapter):
+    spec_path = "supervised/linear-regression.yaml"
+
+    def run(self, dataframe, target, features, parameters):
+        # Implementation only - metadata comes from YAML
+        model = LinearRegression()
+        # ... train and return results
+```
+
+**Auto-discovery process:**
+
+1. `spec_loader.discover_algorithms()` scans `/algorithms` directory
+2. Finds all YAML files with `kind: Algorithm`
+3. Reads `handler.module` and `handler.class` from spec
+4. Dynamically imports and instantiates adapter class
+5. Registers in `spec_registry`
+
+This pattern eliminates boilerplate and makes adding new algorithms trivial (YAML spec + minimal Python implementation).
 
 ---
 
@@ -886,16 +1164,104 @@ Recommended build order:
 
 ---
 
-## 18. Final Build Directive
+## 18. Architecture Summary
 
-Build **Texture** as a minimal two-project workspace:
+Texture is built as a **three-tier microservices architecture**:
 
-- **Kolam**: React + TypeScript + Rsbuild + pnpm, with a dashboard UI inspired by Uber Base design principles
-- **Weaver**: Python + uv + FastAPI + pyproject.toml + Ruff, exposing clean metadata-first APIs for algorithm discovery, dataset upload, schema inference, model execution, and result delivery
+### Kolam (Frontend)
+- React 19 + TypeScript + Rsbuild + pnpm
+- Clerk authentication
+- Dashboard UI inspired by Uber Base design principles
+- Metadata-driven rendering from YAML specs
 
-The system must be **algorithm-first, metadata-driven, schema-aware, visually minimal, and focused on learning**.
+### Loom (API Gateway)
+- Go 1.26.1 + Chi + Huma + gRPC client
+- REST API layer (`/api/v1/*`)
+- JWT authentication (Clerk)
+- File upload handling
+- Algorithm metadata serving
+- Request orchestration to Weaver
 
-If you want, I can turn this next into a stricter `SPEC.md` format with headings, acceptance criteria, JSON contracts, and exact folder trees only.
+### Weaver (ML Compute Engine)
+- Python 3.14 + gRPC server + scikit-learn + XGBoost
+- Auto-discovery of algorithms from YAML specs
+- Schema inference
+- ML execution and evaluation
+- Chart data generation
+
+The system is **algorithm-first, spec-driven, metadata-driven, schema-aware, visually minimal, and focused on learning**.
+
+---
+
+## 19. Development Guardrails
+
+### Core Principles
+
+1. **Simplicity First**
+   - No over-engineering
+   - Add features only when explicitly needed
+   - Avoid abstractions for one-time use
+   - Keep files small and obvious
+
+2. **Spec-Driven Development**
+   - Algorithms defined in YAML specs (`/algorithms`)
+   - Auto-discovery eliminates manual registration
+   - Metadata drives UI rendering
+   - Single source of truth for algorithm contracts
+
+3. **Security**
+   - All API endpoints protected by Clerk JWT (except health)
+   - Input validation on both Loom and Weaver
+   - No Python tracebacks exposed to frontend
+   - CSV parsing with pandas (safe)
+   - File size limits enforced
+
+4. **Error Handling**
+   - User-friendly error messages
+   - Graceful degradation
+   - Clear validation feedback
+   - Structured logging
+
+5. **Code Quality**
+   - **TypeScript:** Strict mode, no `any` types
+   - **Go:** `gofmt`, proper error handling, no panics
+   - **Python:** Ruff linting, type hints, PEP 8
+   - Consistent naming conventions
+
+### Constraints
+
+- **No Database:** Stateless services, in-memory caching only
+- **No Persistent Storage:** CSV files cached temporarily
+- **No Automated Tests Yet:** Manual testing for now (add in future)
+- **No Deployment Automation:** Focus on local development first
+
+### Environment Configuration
+
+```bash
+# Kolam
+LOOM_API_URL=http://localhost:8080/api/v1
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+
+# Loom
+PORT=8080
+CLERK_SECRET_KEY=sk_test_...
+WEAVER_GRPC_URL=localhost:50051
+ALGORITHM_SPECS_PATH=../algorithms
+ALLOWED_ORIGINS=http://localhost:3000
+
+# Weaver
+GRPC_PORT=50051
+ALGORITHM_SPECS_PATH=../algorithms
+```
+
+### Future Considerations
+
+- Add automated testing (unit + integration)
+- Add database for persistent workspaces
+- Add background job processing for long-running algorithms
+- Add dataset versioning
+- Add experiment tracking
+- Add deployment automation
 
 [1]: https://base.uber.com/?utm_source=chatgpt.com "Base design system - Uber"
 [2]: https://v2.rsbuild.dev/guide/start/?utm_source=chatgpt.com "Introduction"

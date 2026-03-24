@@ -1,0 +1,111 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: matrix-profile
+  displayName: Matrix Profile
+  namespace: anomaly-detection
+  labels:
+    difficulty: advanced
+    model-family: time-series
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: matrix_profile
+  description: Measures similarity between subsequences in a time series using z-normalized distance.
+  tags:
+  - time-series
+  - pattern-discovery
+  - unsupervised
+  - fast
+  - interpretable
+  - subsequence-matching
+  difficulty: advanced
+  modelFamily: time-series
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: 1
+  parameters:
+  - name: window_size
+    type: int
+    default: 50
+    label: Subsequence window size
+    description: Length of subsequence pattern to match
+  - name: threshold_multiplier
+    type: float
+    default: 3.0
+    label: Threshold multiplier
+    description: Multiplier for standard deviation to classify anomalies
+  outputs:
+    metrics:
+    - name: n_anomalies
+      displayName: Number of Anomalies
+      description: Total count of detected anomalies
+    - name: anomaly_percentage
+      displayName: Anomaly Percentage
+      description: Percentage of subsequences classified as anomalies
+    - name: max_distance
+      displayName: Maximum Distance
+      description: Largest matrix profile distance
+    - name: mean_distance
+      displayName: Mean Distance
+      description: Average matrix profile distance
+    visualizations:
+    - name: time_series_plot
+      defaultChart: line
+      title: Time Series with Anomalies
+      description: Original time series with detected anomalies highlighted
+      dataFields:
+        x: index
+        y: value
+        highlight: is_anomaly
+      availableCharts: [line, scatter]
+    - name: matrix_profile_plot
+      defaultChart: line
+      title: Matrix Profile
+      description: Distance profile showing subsequence similarity
+      dataFields:
+        x: index
+        y: distance
+        threshold: threshold_line
+      availableCharts: [line, bar]
+    - name: anomaly_windows
+      defaultChart: scatter
+      title: Anomaly Windows
+      description: Location and magnitude of anomalous subsequences
+      dataFields:
+        x: window_start
+        y: distance
+      availableCharts: [scatter, bar]
+    tables:
+    - name: top_anomalies
+      title: Top Anomalous Subsequences
+      description: Windows with highest matrix profile distances
+      columns:
+      - name: window_start
+        type: int
+      - name: window_end
+        type: int
+      - name: distance
+        type: float
+      - name: nearest_neighbor_index
+        type: int
+  validationRules:
+  - Exactly 1 feature column required (time series)
+  - Feature must be numeric
+  - Window size must be positive and less than series length
+  - Threshold multiplier must be positive
+  handler:
+    module: app.ml.anomaly_detection.matrix_profile
+    class: MatrixProfileAdapter
+    interface: AlgorithmAdapter

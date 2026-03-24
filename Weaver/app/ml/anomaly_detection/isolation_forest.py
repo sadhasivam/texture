@@ -9,7 +9,7 @@ from app.ml.spec_adapter import SpecDrivenAdapter
 class IsolationForestAdapter(SpecDrivenAdapter):
     """ "Isolation Forest using YAML spec for metadata."""
 
-    spec_path = "unsupervised/isolation-forest.yaml"
+    spec_path = "anomaly_detection/isolation-forest.yaml"
 
     def run(
         self,

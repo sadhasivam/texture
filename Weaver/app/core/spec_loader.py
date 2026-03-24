@@ -87,8 +87,8 @@ class SpecLoader:
         """Discover all algorithm specs in the base path."""
         algorithm_specs = []
 
-        # Search supervised and unsupervised directories
-        for category_dir in ["supervised", "unsupervised"]:
+        # Search supervised, unsupervised, and anomaly_detection directories
+        for category_dir in ["supervised", "unsupervised", "anomaly_detection"]:
             category_path = self.base_path / category_dir
             if category_path.exists():
                 for yaml_file in category_path.glob("*.yaml"):

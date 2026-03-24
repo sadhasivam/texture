@@ -1,0 +1,101 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: mahalanobis-distance
+  displayName: Mahalanobis Distance
+  namespace: unsupervised-learning
+  labels:
+    difficulty: intermediate
+    model-family: statistical
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: mahalanobis_distance
+  description: Computes how far a point is from the mean, accounting for correlations between features.
+  tags:
+  - statistical
+  - correlation-aware
+  - interpretable
+  - outlier-detection
+  - distance-based
+  - gaussian
+  difficulty: intermediate
+  modelFamily: statistical
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 2
+    max: null
+  parameters:
+  - name: threshold
+    type: float
+    default: 3.0
+    label: Threshold (standard deviations)
+    description: Number of standard deviations to classify as anomaly
+  - name: contamination
+    type: float
+    default: 0.1
+    label: Expected proportion of anomalies
+    description: Used for automatic threshold calculation
+  outputs:
+    metrics:
+    - name: n_anomalies
+      displayName: Number of Anomalies
+      description: Total count of detected anomalies
+    - name: anomaly_percentage
+      displayName: Anomaly Percentage
+      description: Percentage of data points classified as anomalies
+    - name: max_distance
+      displayName: Maximum Distance
+      description: Largest Mahalanobis distance in the dataset
+    - name: threshold_used
+      displayName: Threshold Used
+      description: Actual threshold value used for classification
+    visualizations:
+    - name: anomaly_scatter
+      defaultChart: scatter
+      title: Mahalanobis Distance Scatter
+      description: Visualization of data points with their distances
+      dataFields:
+        x: feature1
+        y: feature2
+        color: is_anomaly
+        size: distance
+      availableCharts: [scatter]
+    - name: anomaly_score_distribution
+      defaultChart: scatter
+      title: Distance Distribution
+      description: Distribution of Mahalanobis distances
+      dataFields:
+        x: score
+        y: is_anomaly
+      availableCharts: [scatter]
+    tables:
+    - name: top_anomalies
+      title: Top Anomalies by Distance
+      description: Data points with highest Mahalanobis distances
+      columns:
+      - name: index
+        type: int
+      - name: distance
+        type: float
+      - name: features
+        type: object
+  validationRules:
+  - At least 2 feature columns required for covariance calculation
+  - All features must be numeric
+  - Threshold must be positive
+  - Contamination must be between 0 and 0.5
+  handler:
+    module: app.ml.anomaly_detection.mahalanobis_distance
+    class: MahalanobisDistanceAdapter
+    interface: AlgorithmAdapter

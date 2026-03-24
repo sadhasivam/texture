@@ -344,6 +344,213 @@ export default function ChartRenderer({ chart }: ChartRendererProps) {
           </ResponsiveContainer>
         );
 
+      case 'time_series_plot':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chart.data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="index"
+                label={{ value: 'Time Index', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis
+                dataKey="value"
+                label={{ value: 'Value', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={(props: any) => {
+                  const { cx, cy, payload } = props;
+                  if (payload.is_anomaly) {
+                    return <circle cx={cx} cy={cy} r={4} fill="#ef4444" />;
+                  }
+                  return null;
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+
+      case 'matrix_profile_plot':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chart.data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="index"
+                label={{ value: 'Window Index', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis
+                label={{ value: 'Distance', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="distance"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={false}
+                name="Matrix Profile"
+              />
+              <Line
+                type="monotone"
+                dataKey="threshold_line"
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+                name="Threshold"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+
+      case 'anomaly_windows':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                type="number"
+                dataKey="window_start"
+                name="Window Start"
+                label={{ value: 'Window Start Index', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis
+                type="number"
+                dataKey="distance"
+                name="Distance"
+                label={{ value: 'Matrix Profile Distance', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Scatter data={chart.data} fill="#ef4444" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+
+      case 'distance_scatter':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                type="number"
+                dataKey="feature1"
+                name="Feature 1"
+                label={{ value: 'Feature 1', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis
+                type="number"
+                dataKey="feature2"
+                name="Feature 2"
+                label={{ value: 'Feature 2 / Distance', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Legend />
+              <Scatter
+                name="Normal"
+                data={chart.data.filter((d: any) => !d.is_anomaly)}
+                fill="#10b981"
+              />
+              <Scatter
+                name="Anomaly"
+                data={chart.data.filter((d: any) => d.is_anomaly)}
+                fill="#ef4444"
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+
+      case 'distance_distribution':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={chart.data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="distance"
+                label={{ value: 'Mahalanobis Distance', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="normal_count" stackId="a" fill="#10b981" name="Normal" />
+              <Bar dataKey="anomaly_count" stackId="a" fill="#ef4444" name="Anomaly" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+
+      case 'decision_boundary':
+        const normalPoints = chart.data.filter((d: any) => !d.is_anomaly && !d.is_support_vector);
+        const supportVectors = chart.data.filter((d: any) => d.is_support_vector);
+        const anomalyPoints = chart.data.filter((d: any) => d.is_anomaly);
+
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                type="number"
+                dataKey="feature1"
+                name="Feature 1"
+                label={{ value: 'Feature 1', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis
+                type="number"
+                dataKey="feature2"
+                name="Feature 2"
+                label={{ value: 'Feature 2 / Decision Score', angle: -90, position: 'insideLeft' }}
+              />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <Legend />
+              <Scatter
+                name="Normal"
+                data={normalPoints}
+                fill="#10b981"
+              />
+              <Scatter
+                name="Support Vectors"
+                data={supportVectors}
+                fill="#3b82f6"
+                shape="triangle"
+              />
+              <Scatter
+                name="Anomaly"
+                data={anomalyPoints}
+                fill="#ef4444"
+              />
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
+
+      case 'decision_scores':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={chart.data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="score"
+                label={{ value: 'Decision Score', position: 'insideBottom', offset: -10 }}
+              />
+              <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="normal_count" stackId="a" fill="#10b981" name="Normal" />
+              <Bar dataKey="anomaly_count" stackId="a" fill="#ef4444" name="Anomaly" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+
       default:
         return (
           <div className="chart-fallback">
