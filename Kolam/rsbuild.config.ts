@@ -17,10 +17,10 @@ export default defineConfig({
       index: './src/main.tsx',
     },
     define: {
-      'import.meta.env.VITE_CLERK_PUBLISHABLE_KEY': JSON.stringify(
+      'import.meta.env.CLERK_PUBLISHABLE_KEY': JSON.stringify(
         process.env.CLERK_PUBLISHABLE_KEY || ''
       ),
-      'import.meta.env.VITE_API_URL': JSON.stringify(
+      'import.meta.env.LOOM_API_URL': JSON.stringify(
         process.env.LOOM_API_URL || 'http://localhost:8080/api/v1'
       ),
     },

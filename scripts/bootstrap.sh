@@ -2,6 +2,8 @@
 
 # docker run --name texture -v .:/texture -it ubuntu:24.04  /bin/sh
 
+# git clone https://github.com/sadhasivam/texture.git
+
 apt-get update
 apt-get install -y curl ca-certificates git build-essential
 

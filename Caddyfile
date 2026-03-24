@@ -1,15 +1,13 @@
 texture.sadhasivam.net {
 	encode gzip
 
-	# Keep API on your server
 	handle /api/* {
-		reverse_proxy localhost:8000
+		reverse_proxy 127.0.0.1:8080
 	}
 
-	# Send everything else to your Vercel app
 	handle {
-		reverse_proxy https://kolam-pjbisng2c-sadhasivamgmailcoms-projects.vercel.app {
-			header_up Host kolam-pjbisng2c-sadhasivamgmailcoms-projects.vercel.app
+		reverse_proxy https://texture-gilt.vercel.app {
+			header_up Host texture-gilt.vercel.app
 		}
 	}
 
