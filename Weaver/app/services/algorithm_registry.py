@@ -40,7 +40,3 @@ class AlgorithmRegistry:
     def get_adapter(self, algorithm_id: str) -> AlgorithmAdapter | None:
         """Get algorithm adapter by ID."""
         return self._algorithms.get(algorithm_id)
-
-
-# Global registry instance
-registry = AlgorithmRegistry()

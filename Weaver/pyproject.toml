@@ -51,4 +51,5 @@ indent-style = "space"
 dev = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "vulture>=2.15",
 ]
