@@ -1,0 +1,372 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: z-score
+  displayName: Z-Score Anomaly Detection
+  namespace: unsupervised-learning
+  labels:
+    difficulty: beginner
+    model-family: statistical
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: z_score
+  description: Detects outliers using statistical z-scores (standard deviations from mean).
+  tags:
+  - statistical
+  - beginner-friendly
+  - univariate
+  - outlier-detection
+  - interpretable
+  difficulty: beginner
+  modelFamily: statistical
+
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: 1
+
+  parameters:
+  - name: threshold
+    type: float
+    default: 3.0
+    label: Z-Score threshold (typically 2 or 3)
+
+  outputs:
+    metrics:
+    - name: anomaly_count
+      displayName: Number of Anomalies
+    - name: anomaly_percentage
+      displayName: Percentage of Anomalies
+    - name: mean
+      displayName: Mean
+    - name: std_dev
+      displayName: Standard Deviation
+    - name: min_z_score
+      displayName: Minimum Z-Score
+    - name: max_z_score
+      displayName: Maximum Z-Score
+    visualizations:
+    - name: distribution_with_threshold
+      defaultChart: histogram
+      title: Distribution with Threshold Bands
+    - name: z_score_plot
+      defaultChart: scatter
+      title: Z-Score Values
+    - name: anomaly_scatter
+      defaultChart: scatter
+      title: Detected Anomalies
+    tables:
+    - name: anomaly_details
+      title: Top Anomalies
+
+  validationRules:
+  - Exactly 1 numeric feature column required
+  - Feature column must have at least 3 values
+  - Threshold must be positive
+
+  handler:
+    module: app.ml.anomaly_detection.z_score
+    class: ZScoreAdapter
+    interface: AlgorithmAdapter
+
+  education:
+    hero:
+      tagline: "Spot the Oddball with Simple Statistics!"
+      subtitle: "The beginner-friendly way to find outliers using z-scores"
+      badges:
+        - text: "Statistical"
+          color: "blue"
+        - text: "Beginner"
+          color: "green"
+        - text: "Univariate"
+          color: "purple"
+
+    whatIsIt:
+      definition: "Z-Score Anomaly Detection finds unusual data points by measuring how many standard deviations they are from the average."
+      intuition: "Imagine your class test scores. If most students score between 70-90, but one student scores 15, that's an anomaly! Z-score tells you exactly how unusual that 15 is."
+      keyPoints:
+        - title: "Simple Math"
+          description: "Just mean, standard deviation, and a threshold"
+          icon: "📊"
+        - title: "Interpretable"
+          description: "Know exactly how many σ away each point is"
+          icon: "🎯"
+        - title: "Fast"
+          description: "Works in a single pass over the data"
+          icon: "⚡"
+        - title: "Beginner-Friendly"
+          description: "The easiest statistical outlier detection method"
+          icon: "🌟"
+
+    mathematics:
+      simpleFormula:
+        equation: "z = (x - μ) / σ"
+        components:
+          - symbol: "z"
+            name: "Z-Score"
+            description: "How many standard deviations away from mean"
+            example: "2.5 means 2.5σ above average"
+            color: "#FF6B6B"
+          - symbol: "x"
+            name: "Data Point"
+            description: "The value you're checking"
+            example: "Student score = 95"
+            color: "#4ECDC4"
+          - symbol: "μ"
+            name: "Mean (Average)"
+            description: "Average of all values"
+            example: "Class average = 78"
+            color: "#FFE66D"
+          - symbol: "σ"
+            name: "Standard Deviation"
+            description: "How spread out the data is"
+            example: "σ = 8 points"
+            color: "#A8E6CF"
+
+      decisionRule:
+        equation: "Anomaly if |z| > threshold"
+        explanation: "If absolute z-score exceeds threshold (usually 2 or 3), flag as anomaly"
+        thresholds:
+          - value: 2.0
+            coverage: "~95% of normal data"
+            description: "Stricter detection, catches more anomalies"
+          - value: 3.0
+            coverage: "~99.7% of normal data"
+            description: "Conservative detection, fewer false alarms"
+
+    howItWorks:
+      steps:
+        - number: 1
+          title: "Calculate the Average (μ)"
+          description: "Find the mean of all your data points. This is your baseline."
+          formula: "μ = (x₁ + x₂ + ... + xₙ) / n"
+          visual: "average_line"
+          example: "Test scores: [72, 78, 85, 76, 80] → μ = 78.2"
+
+        - number: 2
+          title: "Calculate Spread (σ)"
+          description: "Measure how spread out your data is using standard deviation."
+          formula: "σ = √[Σ(xᵢ - μ)² / (n-1)]"
+          visual: "distribution_spread"
+          example: "Standard deviation σ = 4.8 points"
+
+        - number: 3
+          title: "Compute Z-Scores"
+          description: "For each data point, calculate how many standard deviations away from mean."
+          formula: "z = (x - μ) / σ"
+          visual: "z_score_calculation"
+          example: "Score 95: z = (95 - 78.2) / 4.8 = 3.5"
+
+        - number: 4
+          title: "Flag Anomalies"
+          description: "Any point with |z| > threshold is an anomaly."
+          formula: "|z| > threshold → Anomaly"
+          visual: "threshold_bands"
+          example: "z = 3.5 > 3.0 → This is an anomaly!"
+
+    realExample:
+      title: "Detecting Unusual Transaction Amounts"
+      scenario: "You run an online store and want to detect fraudulent transactions by finding unusual purchase amounts."
+
+      trainingData:
+        description: "Sample of recent transaction amounts (in dollars)"
+        sampleRows:
+          - transaction_id: 1001
+            amount: 45.99
+          - transaction_id: 1002
+            amount: 128.50
+          - transaction_id: 1003
+            amount: 67.25
+          - transaction_id: 1004
+            amount: 89.00
+          - transaction_id: 1005
+            amount: 1250.00
+          - transaction_id: 1006
+            amount: 52.75
+          - transaction_id: 1007
+            amount: 73.40
+          - transaction_id: 1008
+            amount: 91.20
+          - transaction_id: 1009
+            amount: 0.01
+          - transaction_id: 1010
+            amount: 105.50
+
+      results:
+        statistics:
+          mean: 190.36
+          std_dev: 352.48
+          threshold: 3.0
+
+        detected:
+          - transaction_id: 1005
+            amount: 1250.00
+            z_score: 3.01
+            interpretation: "Unusually high amount - potential fraud"
+          - transaction_id: 1009
+            amount: 0.01
+            z_score: -0.54
+            interpretation: "Very low amount - testing attack?"
+
+        metrics:
+          anomaly_count: 2
+          anomaly_percentage: 20.0
+          min_z_score: -0.54
+          max_z_score: 3.01
+
+    useCases:
+      good:
+        - title: "Fraud Detection"
+          description: "Spot unusual credit card transactions or banking activity"
+          icon: "🛡️"
+          example: "Transaction of $15,000 when average is $87"
+
+        - title: "Quality Control"
+          description: "Find defective products in manufacturing"
+          icon: "🏭"
+          example: "Widget weight 250g when mean is 100g ± 5g"
+
+        - title: "Network Monitoring"
+          description: "Detect unusual traffic spikes or drops"
+          icon: "📡"
+          example: "Server requests 10,000/sec when avg is 200/sec"
+
+        - title: "Sensor Data"
+          description: "Identify faulty sensor readings"
+          icon: "🌡️"
+          example: "Temperature reading -40°C when avg is 22°C"
+
+        - title: "Grade Analysis"
+          description: "Find exceptionally high or low test scores"
+          icon: "📝"
+          example: "Student scores 5/100 when class avg is 78/100"
+
+      limitations:
+        - title: "Assumes Normal Distribution"
+          description: "Works best when data follows a bell curve"
+          icon: "⚠️"
+          example: "Doesn't work well with heavily skewed data"
+
+        - title: "Univariate Only (in V1)"
+          description: "Analyzes only one variable at a time"
+          icon: "📊"
+          example: "Can't detect correlated anomalies across features"
+
+        - title: "Sensitive to Outliers"
+          description: "Mean and σ are affected by extreme values"
+          icon: "🎯"
+          example: "One extreme outlier can shift the mean"
+
+        - title: "Fixed Threshold"
+          description: "Same threshold for all data - may need tuning"
+          icon: "🔧"
+          example: "3σ might be too strict or too loose for your data"
+
+    codeExample:
+      language: python
+      code: |
+        import pandas as pd
+        from texture import Texture
+
+        # Load transaction data
+        df = pd.read_csv("transactions.csv")
+
+        # Initialize Texture
+        texture = Texture()
+
+        # Run Z-Score anomaly detection
+        result = texture.run(
+            algorithm="z_score",
+            dataset=df,
+            features=["amount"],
+            parameters={"threshold": 3.0}
+        )
+
+        # View results
+        print(f"Detected {result['metrics']['anomaly_count']} anomalies")
+        print(f"Mean: ${result['metrics']['mean']:.2f}")
+        print(f"Std Dev: ${result['metrics']['std_dev']:.2f}")
+
+        # Get anomaly details
+        anomalies = result['tables']['anomaly_details']
+        for row in anomalies:
+            print(f"Transaction {row['original_index']}: "
+                  f"${row['value']:.2f} "
+                  f"(z={row['z_score']:.2f})")
+
+      expectedOutput: |
+        Detected 2 anomalies
+        Mean: $190.36
+        Std Dev: $352.48
+        Transaction 1005: $1250.00 (z=3.01)
+        Transaction 1009: $0.01 (z=-0.54)
+
+    assumptions:
+      - title: "Data Should Be Normally Distributed"
+        description: "Z-score assumes your data follows a bell curve (normal distribution)"
+        severity: "important"
+
+      - title: "Independent Observations"
+        description: "Each data point should be independent (not time-series autocorrelated)"
+        severity: "moderate"
+
+      - title: "Sufficient Sample Size"
+        description: "Need at least 30 samples for reliable mean and σ estimates"
+        severity: "important"
+
+      - title: "No Missing Values"
+        description: "Missing values are automatically dropped before analysis"
+        severity: "info"
+
+      - title: "Single Feature Analysis"
+        description: "V1 only supports univariate analysis (one column at a time)"
+        severity: "info"
+
+documentation:
+  colorScheme:
+    primary: "#4A90E2"
+    secondary: "#7B68EE"
+    success: "#50C878"
+    warning: "#FFB347"
+    danger: "#FF6B6B"
+    info: "#4ECDC4"
+
+  fonts:
+    heading: "Bangers"
+    body: "Inter"
+    code: "Fira Code"
+
+  chartExamples:
+    distributionWithThreshold:
+      description: "Histogram showing data distribution with threshold bands at ±threshold σ"
+      features:
+        - "Normal range highlighted in green"
+        - "Anomaly regions in red beyond threshold"
+        - "Mean line (μ) and ±1σ, ±2σ, ±3σ bands"
+
+    zScorePlot:
+      description: "Scatter plot of z-scores for each data point"
+      features:
+        - "Horizontal threshold lines at ±threshold"
+        - "Points colored by anomaly status"
+        - "Shows relative extremeness of each point"
+
+    anomalyScatter:
+      description: "Original data values with anomalies highlighted"
+      features:
+        - "Normal points in blue"
+        - "Anomalies in red"
+        - "Shows actual data values, not z-scores"

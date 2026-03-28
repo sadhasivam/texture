@@ -1,0 +1,76 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: z-score
+  displayName: Z-Score Anomaly Detection
+  namespace: unsupervised-learning
+  labels:
+    difficulty: beginner
+    model-family: statistical
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: z_score
+  description: Detects outliers using statistical z-scores (standard deviations from mean).
+  tags:
+  - statistical
+  - beginner-friendly
+  - univariate
+  - outlier-detection
+  - interpretable
+  difficulty: beginner
+  modelFamily: statistical
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: 1
+  parameters:
+  - name: threshold
+    type: float
+    default: 3.0
+    label: Z-Score threshold (typically 2 or 3)
+  outputs:
+    metrics:
+    - name: anomaly_count
+      displayName: Number of Anomalies
+    - name: anomaly_percentage
+      displayName: Percentage of Anomalies
+    - name: mean
+      displayName: Mean
+    - name: std_dev
+      displayName: Standard Deviation
+    - name: min_z_score
+      displayName: Minimum Z-Score
+    - name: max_z_score
+      displayName: Maximum Z-Score
+    visualizations:
+    - name: distribution_with_threshold
+      defaultChart: histogram
+      title: Distribution with Threshold Bands
+    - name: z_score_plot
+      defaultChart: scatter
+      title: Z-Score Values
+    - name: anomaly_scatter
+      defaultChart: scatter
+      title: Detected Anomalies
+    tables:
+    - name: anomaly_details
+      title: Top Anomalies
+  validationRules:
+  - Exactly 1 numeric feature column required
+  - Feature column must have at least 3 values
+  - Threshold must be positive
+  handler:
+    module: app.ml.anomaly_detection.z_score
+    class: ZScoreAdapter
+    interface: AlgorithmAdapter

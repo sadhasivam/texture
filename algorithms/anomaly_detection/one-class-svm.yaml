@@ -1,0 +1,105 @@
+apiVersion: texture.ml/v1
+kind: Algorithm
+metadata:
+  name: one-class-svm
+  displayName: One-Class SVM
+  namespace: anomaly-detection
+  labels:
+    difficulty: intermediate
+    model-family: svm
+    category: anomaly_detection
+  annotations:
+    texture.ml/version: 1.0.0
+spec:
+  ontologyRef: base/ontology-anomaly_detection-anomaly_detection.yaml
+  dependencyRef: base/dependencies-sklearn-base.yaml
+  id: one_class_svm
+  description: Finds a boundary around the normal class using support vectors, treating all others as anomalies.
+  tags:
+  - svm
+  - kernel-based
+  - unsupervised
+  - outlier-detection
+  - boundary-based
+  difficulty: intermediate
+  modelFamily: svm
+  target:
+    required: false
+    types: []
+    cardinality: single
+    nullable: false
+  features:
+    required: true
+    types:
+    - numeric
+    min: 1
+    max: null
+  parameters:
+  - name: nu
+    type: float
+    default: 0.1
+    label: Nu (upper bound on fraction of outliers)
+    description: Upper bound on the fraction of training errors and lower bound on support vectors
+  - name: kernel
+    type: string
+    default: rbf
+    label: Kernel type
+    description: Kernel function (rbf, linear, poly, sigmoid)
+  - name: gamma
+    type: string
+    default: auto
+    label: Gamma (kernel coefficient)
+    description: Kernel coefficient for rbf, poly, sigmoid (auto or float)
+  outputs:
+    metrics:
+    - name: n_anomalies
+      displayName: Number of Anomalies
+      description: Total count of detected anomalies
+    - name: anomaly_percentage
+      displayName: Anomaly Percentage
+      description: Percentage of data points classified as anomalies
+    - name: n_support_vectors
+      displayName: Support Vectors
+      description: Number of support vectors used
+    - name: support_vector_percentage
+      displayName: Support Vector %
+      description: Percentage of training points that are support vectors
+    visualizations:
+    - name: decision_boundary
+      defaultChart: scatter
+      title: Decision Boundary Visualization
+      description: Data points with decision boundary and support vectors
+      dataFields:
+        x: feature1
+        y: feature2
+        color: is_anomaly
+        shape: is_support_vector
+      availableCharts: [scatter]
+    - name: decision_scores
+      defaultChart: histogram
+      title: Decision Score Distribution
+      description: Distribution of decision function scores
+      dataFields:
+        x: score
+        color: is_anomaly
+      availableCharts: [histogram]
+    tables:
+    - name: top_anomalies
+      title: Top Anomalies by Score
+      description: Data points with most negative decision scores
+      columns:
+      - name: index
+        type: int
+      - name: decision_score
+        type: float
+      - name: features
+        type: object
+  validationRules:
+  - At least 1 feature column required
+  - All features must be numeric
+  - Nu must be between 0 and 1
+  - Kernel must be one of rbf, linear, poly, sigmoid
+  handler:
+    module: app.ml.anomaly_detection.one_class_svm
+    class: OneClassSVMAdapter
+    interface: AlgorithmAdapter

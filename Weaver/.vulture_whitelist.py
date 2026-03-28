@@ -18,6 +18,9 @@ _.KMeansAdapter
 _.PCAAdapter
 _.TSNEAdapter
 
+# proto generted files
+
+
 # gRPC service methods - called by gRPC framework via protobuf bindings
 _.HealthCheck
 _.InferSchema
