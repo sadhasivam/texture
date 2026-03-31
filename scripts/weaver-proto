@@ -2,13 +2,8 @@
 # Build protobuf for Weaver (Python)
 set -e
 
-cd "$(dirname "$0")/../Weaver"
-echo "Generating Python protobuf code..."
-.venv/bin/python -m grpc_tools.protoc -I../proto --python_out=app/pb --grpc_python_out=app/pb ../proto/*.proto
-
-# Fix imports
-cd app/pb
-sed -i '' 's/^import weaver_pb2/from . import weaver_pb2/g' weaver_pb2_grpc.py
-sed -i '' 's/^import common_pb2/from . import common_pb2/g' weaver_pb2_grpc.py weaver_pb2.py
+cd "$(dirname "$0")/../proto"
+echo "Generating protobuf code..."
+make generate-python
 
 echo "✓ Weaver protobuf generated"

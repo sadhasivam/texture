@@ -1,4 +1,4 @@
-.PHONY: help install dev-loom dev-weaver build start stop status clean
+.PHONY: help install dev-loom dev-weaver build start stop status clean proto-generate proto-lint proto-format proto-breaking
 
 export PATH := $(HOME)/.local/bin:$(HOME)/.cargo/bin:$(PATH)
 
@@ -79,3 +79,19 @@ clean: ## Clean build artifacts
 	@echo "Cleaning build artifacts..."
 	@rm -rf Loom/bin
 	@echo "✓ Cleaned"
+
+proto-generate: ## Generate protobuf code for Go and Python
+	@echo "Generating protobuf code..."
+	@cd proto && $(MAKE) generate
+
+proto-lint: ## Lint protobuf files
+	@echo "Linting protobuf files..."
+	@cd proto && $(MAKE) lint
+
+proto-format: ## Format protobuf files
+	@echo "Formatting protobuf files..."
+	@cd proto && $(MAKE) format
+
+proto-breaking: ## Check for breaking changes in protobuf
+	@echo "Checking for breaking changes..."
+	@cd proto && $(MAKE) breaking

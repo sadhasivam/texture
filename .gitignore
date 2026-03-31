@@ -156,3 +156,6 @@ Loom/pb/*_grpc.pb.go
 Weaver/app/pb/*_pb2.py
 Weaver/app/pb/*_pb2.pyi
 Weaver/app/pb/*_pb2_grpc.py
+
+# Buf
+.buf/

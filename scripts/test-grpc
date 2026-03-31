@@ -1,0 +1,47 @@
+#!/bin/bash
+# Test Weaver gRPC endpoints with buf curl
+
+set -e
+
+# Change to project root
+cd "$(dirname "$0")/.."
+
+WEAVER_URL="http://localhost:50051"
+SCHEMA_DIR="proto"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Testing Weaver gRPC endpoints${NC}\n"
+
+# Test 1: Health Check
+echo -e "${GREEN}1. Testing HealthCheck...${NC}"
+buf curl --http2-prior-knowledge \
+  --protocol grpc \
+  --schema "$SCHEMA_DIR" \
+  --data '{}' \
+  "$WEAVER_URL/texture.WeaverService/HealthCheck"
+
+echo -e "\n${GREEN}2. Testing InferSchema...${NC}"
+
+# Create sample CSV
+CSV_DATA=$(cat <<'EOF'
+area,bedrooms,price
+1200,2,220000
+1500,3,280000
+1800,4,350000
+EOF
+)
+
+# Encode to base64
+CSV_B64=$(echo "$CSV_DATA" | base64)
+
+buf curl --http2-prior-knowledge \
+  --protocol grpc \
+  --schema "$SCHEMA_DIR" \
+  --data "{\"datasetCsv\": \"$CSV_B64\", \"datasetId\": \"test-$(date +%s)\"}" \
+  "$WEAVER_URL/texture.WeaverService/InferSchema"
+
+echo -e "\n${GREEN}✓ All tests passed${NC}"

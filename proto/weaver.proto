@@ -34,16 +34,16 @@ message HealthResponse {
 // Execute run request
 message ExecuteRunRequest {
   string algorithm_id = 1;
-  bytes dataset_csv = 2;           // Raw CSV data as bytes
+  bytes dataset_csv = 2; // Raw CSV data as bytes
   string target_column = 3;
   repeated string feature_columns = 4;
   map<string, string> parameters = 5;
-  string request_id = 6;           // For tracing/logging
+  string request_id = 6; // For tracing/logging
 }
 
 // Execute run response
 message ExecuteRunResponse {
-  string status = 1;                    // success, error
+  string status = 1; // success, error
   RunSummary summary = 2;
   map<string, double> metrics = 3;
   repeated Chart charts = 4;
@@ -80,8 +80,8 @@ message ValidateRunResponse {
 
 // Infer schema request
 message InferSchemaRequest {
-  bytes dataset_csv = 1;           // Raw CSV data as bytes
-  string dataset_id = 2;           // Optional ID for tracking
+  bytes dataset_csv = 1; // Raw CSV data as bytes
+  string dataset_id = 2; // Optional ID for tracking
 }
 
 // Infer schema response
@@ -97,7 +97,7 @@ message InferSchemaResponse {
 // Column schema metadata
 message ColumnSchema {
   string name = 1;
-  string inferred_type = 2;        // numeric, categorical, boolean, datetime, text, identifier
+  string inferred_type = 2; // numeric, categorical, boolean, datetime, text, identifier
   int32 missing_count = 3;
   int32 unique_count = 4;
   repeated string sample_values = 5;

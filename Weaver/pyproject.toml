@@ -11,7 +11,7 @@ dependencies = [
     "xgboost>=2.0.0",
     "scipy>=1.11.0",
     "stumpy>=1.12.0",
-    # gRPC
+    # gRPC (includes protobuf 6.x)
     "grpcio>=1.78.0",
     "grpcio-tools>=1.78.0",
     # Utils

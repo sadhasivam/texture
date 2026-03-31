@@ -1,0 +1,13 @@
+version: v2
+managed:
+  enabled: false
+plugins:
+  # Go code generation for Loom (local plugins)
+  - local: protoc-gen-go
+    out: ../Loom/pb
+    opt:
+      - paths=source_relative
+  - local: protoc-gen-go-grpc
+    out: ../Loom/pb
+    opt:
+      - paths=source_relative
